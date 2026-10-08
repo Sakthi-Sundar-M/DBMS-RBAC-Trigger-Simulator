@@ -38,6 +38,13 @@ def diagnose_student_submission(question: Dict[str, Any], student_text: str, eva
     Explains the exact DBMS concept and why certain logic works or fails.
     Falls back to rubric-based diagnosis if Gemini API is offline.
     """
+    if eval_result.get("grade_band") == "Not Submitted":
+        return f"""<div style="font-size: 13px; line-height: 1.35; color: #cbd5e1;">
+<div style="margin-bottom: 5px; font-weight: 700; color: #f8fafc;">Diagnostic Review (Match: 0.0% &bull; Not Submitted):</div>
+<div style="margin-bottom: 4px; color: #f87171; font-weight: 600;">No answer detected: You submitted the pre-defined template without entering an answer.</div>
+<div style="margin-bottom: 7px; color: #94a3b8;">Please fill in your answer for each primitive or write your solution in the box above, then click <b>Submit for AI Evaluation</b>.</div>
+</div>"""
+
     client = get_gemini_client()
     if not client:
         # High-yield offline fallback diagnosis
@@ -1503,15 +1510,16 @@ def evaluate_isomorphic_submission(student_code: str, iso_data: Dict[str, Any]) 
     relational schema, transition variables, and key invariants.
     """
     clean_code = student_code.strip()
+    starter = iso_data.get("starter_code", "").strip()
     rubric = iso_data.get("rubric_checks", [])
 
-    if not clean_code or len(clean_code) < 15:
+    if not clean_code or clean_code == starter or len(clean_code) < 15:
         return {
             "score": 0,
-            "grade_band": "No Submission",
+            "grade_band": "Not Submitted",
             "passed_checks": [],
             "missing_checks": [c["label"] for c in rubric],
-            "feedback": "Please write your SQL or PL/pgSQL solution in the buffer before submitting for evaluation."
+            "feedback": "No answer detected: You submitted the starter template without modification. Please implement your SQL solution in the buffer before evaluating."
         }
 
     passed = []
