@@ -3,8 +3,7 @@ import pandas as pd
 from db_connection import execute_action_with_snapshot, check_table_permission, get_all_permissions_cache
 from visualizer import (
     render_live_trace, 
-    render_diff_viewer, 
-    render_flowchart, 
+    render_diff_viewer,
     render_graphviz_flowchart, 
     render_eca_trigger_dissector,
     TRIGGER_SOURCE_CODES
