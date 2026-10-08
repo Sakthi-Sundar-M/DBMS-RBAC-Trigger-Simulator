@@ -1,0 +1,36 @@
+# Streamlit & Database Secrets
+.streamlit/secrets.toml
+.env
+*.env
+*.pem
+*.key
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# System & Editor Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Redundant Backups & Scratch Files
+Older_versions/
+scratch/
+scratch_*.txt
+*.tmp
+*.log
+
+# Raw Data Exports
+*.xlsx
