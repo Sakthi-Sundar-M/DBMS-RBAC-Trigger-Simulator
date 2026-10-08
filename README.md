@@ -6,7 +6,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-Academic-green.svg)]()
 
-**Course**: Final-Year Database Management Systems (DBMS) Project  
+**Course**: Database Management Systems (DBMS) Project  
 **Institution**: Vellore Institute of Technology (VIT), Chennai  
 **Author**: M. Sakthi Sundar (Reg. No: 25BCE1244)  
 **Project Guide**: Dr. Swaminathan A (Faculty ID: 54632)  
