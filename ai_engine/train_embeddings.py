@@ -32,6 +32,16 @@ def load_training_data(dataset_paths=None):
             except Exception as e:
                 print(f"Warning: Failed loading {path}: {e}")
 
+    if not questions_map:
+        try:
+            from ai_engine.questions_data import BENCHMARK_QUESTIONS
+            for q in BENCHMARK_QUESTIONS:
+                qid = q.get("id") or q.get("title")
+                if qid and qid not in questions_map:
+                    questions_map[qid] = q
+        except Exception:
+            pass
+
     questions = list(questions_map.values())
     print(f"Loaded {len(questions)} unique questions across datasets.")
 

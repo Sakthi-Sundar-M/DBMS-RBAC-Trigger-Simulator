@@ -130,26 +130,26 @@ Tab 5 provides an interactive learning environment for mastering triggers and ac
 ## 7. Project Structure
 
 ```
-DBP/
+DBMS-RBAC-Trigger-Simulator/
 ├── app.py                     # Streamlit frontend with 5 integrated modules
 ├── config.py                  # Roles, schemas, SQL definitions, and configurations
 ├── db_connection.py           # Thread-safe pooled PostgreSQL connection manager
 ├── visualizer.py              # Visual pipeline rendering, live trace, and diff viewers
 ├── requirements.txt           # Production dependencies
-├── Project_details.txt        # Comprehensive technical specification document
+├── README.md                  # System architecture, RBAC matrix, and deployment guide
+├── .gitignore                 # Exclusion rules for secrets, caches, and local files
 ├── ai_engine/                 # AI practice and isomorphic problem generation
 │   ├── evaluator.py           # Hybrid AI evaluation engine (Embeddings + Invariants)
-│   ├── isomorphic_generator.py# 5-domain problem generator and variant synthesizer
-│   ├── train_embeddings.py    # Fine-tuning script for the sentence transformer model
-│   └── data/
-│       ├── chapter4_trigger_qa.json # Predefined Chapter 4 practice corpus
-│       └── chapter5_trigger_qa.json # Predefined Chapter 5 practice corpus
+│   ├── exam_lab.py            # Practice lab and question runner
+│   ├── questions_data.py      # Curated benchmark practice problems dataset
+│   ├── train_embeddings.py    # Fine-tuning script for sentence transformer model
+│   └── tutor.py               # Generative Socratic tutor and isomorphic variant engine
 ├── models/
 │   └── dbms-trigger-evaluator/ # Fine-tuned PyTorch / HuggingFace model weights
 ├── tests/
+│   ├── conftest.py            # Pytest database fixtures and transactional cleanup
 │   ├── test_ai_evaluator.py   # Unit tests for AI evaluation and invariant checks
 │   └── test_triggers.py       # Validation suite for Neon PostgreSQL triggers
-├── tables/                    # Base relation DDL and sample data seed scripts
 └── .streamlit/
     ├── config.toml            # Streamlit theme and server configuration
     └── secrets.toml.example   # Safe credentials template for deployment

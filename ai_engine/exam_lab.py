@@ -7,13 +7,21 @@ from ai_engine.tutor import diagnose_student_submission, generate_socratic_hint,
 @st.cache_data
 def load_exam_questions():
     """
-    Loads and caches the 15 curated benchmark exam questions.
+    Loads and caches the curated benchmark practice questions.
+    Prioritizes data/exam_questions.json if present, otherwise uses built-in questions_data.
     """
     dataset_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "exam_questions.json")
-    if not os.path.exists(dataset_path):
+    if os.path.exists(dataset_path):
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    try:
+        from ai_engine.questions_data import BENCHMARK_QUESTIONS
+        return BENCHMARK_QUESTIONS
+    except Exception:
         return []
-    with open(dataset_path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def render_exam_lab_tab(active_role="retail_customer"):

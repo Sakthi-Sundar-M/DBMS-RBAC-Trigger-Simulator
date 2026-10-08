@@ -32,5 +32,26 @@ scratch_*.txt
 *.tmp
 *.log
 
-# Raw Data Exports
+# Academic Review Presentations & Question Papers
+*.pptx
+*.pdf
+
+# Review Notes & Academic Guides
+Project_details.txt
+contents.txt
+trigger_sections_guide.txt
+
+# Test Run Screenshots & Image Folders
+*.jpg
+*.jpeg
+*.png
+Bank/
+E-Commerce/
+Education/
+HealtCare/
+tables/
+
+# Raw Database Export Dumps & Question Datasets
 *.xlsx
+square-mud-*.json
+data/
