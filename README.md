@@ -166,8 +166,8 @@ DBP/
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/Sakthi-Sundar-M/workout.git
-cd workout
+git clone https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator.git
+cd DBMS-RBAC-Trigger-Simulator
 
 # Set up virtual environment
 python -m venv .venv
