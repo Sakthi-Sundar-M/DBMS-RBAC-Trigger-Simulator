@@ -1,5 +1,10 @@
 import os
+import re
 from typing import Dict, Any, Optional
+
+# Single source for the Gemini model. Confirm this string against the current
+# Google GenAI model list before deploying; the offline fallbacks run if the call fails.
+GEMINI_MODEL = "gemini-2.0-flash"
 
 def get_gemini_client():
     """
@@ -106,7 +111,7 @@ INSTRUCTIONS:
     try:
         from google.genai import types
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model=GEMINI_MODEL,
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction="You are a rigorous DBMS professor specializing in relational engines, PL/pgSQL procedural triggers, and database security.",
@@ -152,7 +157,7 @@ Provide a progressive Socratic Hint (Level {hint_level} of 2).
     try:
         from google.genai import types
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model=GEMINI_MODEL,
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction="You are a Socratic DBMS tutor providing hints without revealing the full solution.",
@@ -1490,7 +1495,7 @@ Return clean markdown with:
         try:
             from google.genai import types
             response = client.models.generate_content(
-                model="gemini-3.8-flash",
+                model=GEMINI_MODEL,
                 contents=online_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction="You are a DBMS question generator for GATE and university competitive exams.",
@@ -1502,6 +1507,15 @@ Return clean markdown with:
             pass
 
     return offline_res
+
+
+def _pattern_in_code(pattern: str, code: str) -> bool:
+    """Whole-token match: 'new' must not match 'renew'; spaces match any whitespace run."""
+    tokens = pattern.strip().split()
+    if not tokens:
+        return False
+    body = r"\s+".join(re.escape(t) for t in tokens)
+    return re.search(rf"(?<![A-Za-z0-9_]){body}(?![A-Za-z0-9_])", code, re.IGNORECASE) is not None
 
 
 def evaluate_isomorphic_submission(student_code: str, iso_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -1530,12 +1544,12 @@ def evaluate_isomorphic_submission(student_code: str, iso_data: Dict[str, Any]) 
         pattern = item.get("pattern", "")
         label = item.get("label", "")
         if isinstance(pattern, list):
-            match = any(p.lower() in code_lower for p in pattern)
+            match = any(_pattern_in_code(p, clean_code) for p in pattern)
         elif isinstance(pattern, str) and pattern.startswith("regex:"):
             import re
             match = bool(re.search(pattern[6:], clean_code, re.IGNORECASE))
         else:
-            match = str(pattern).lower() in code_lower
+            match = _pattern_in_code(str(pattern), clean_code)
 
         if match:
             passed.append(label)

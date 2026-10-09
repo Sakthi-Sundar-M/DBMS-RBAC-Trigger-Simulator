@@ -70,31 +70,31 @@ def render_exam_lab_tab(active_role="retail_customer"):
     # -------------------------------------------------------------------------
     diff = current_q.get("difficulty", "Medium")
     if diff == "Easy":
-        diff_badge = "<span style='background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>EASY</span>"
+        diff_badge = "<span style='background: rgba(134, 197, 160, 0.15); border: 1px solid #86C5A0; color: #86C5A0; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>EASY</span>"
     elif diff == "Medium":
-        diff_badge = "<span style='background: rgba(56, 189, 248, 0.15); border: 1px solid #0284c7; color: #38bdf8; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>MEDIUM</span>"
+        diff_badge = "<span style='background: rgba(205, 168, 90, 0.15); border: 1px solid #B8975A; color: #E0C27F; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>MEDIUM</span>"
     else:
-        diff_badge = "<span style='background: rgba(192, 132, 252, 0.15); border: 1px solid #9333ea; color: #c084fc; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>HARD</span>"
+        diff_badge = "<span style='background: rgba(167, 191, 207, 0.15); border: 1px solid #7FA0B3; color: #A7BFCF; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>HARD</span>"
 
     st.markdown(f"""
-    <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #38bdf8; border-radius: 8px; padding: 16px 20px; margin-bottom: 18px;">
+    <div class="exam-question-card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
-                <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px;">
+                <span style="font-size: 11px; font-weight: 700; color: #A8322A; text-transform: none; ">
                     {current_q.get('topic')} &bull; {current_q.get('subtopic')}
                 </span>
-                <h3 style="margin: 4px 0 0 0; color: #f8fafc; font-size: 18px;">
+                <h3 style="margin: 4px 0 0 0; color: #16191D; font-size: 18px;">
                     {current_q.get('title')}
                 </h3>
             </div>
             <div style="margin-top: 4px;">
                 {diff_badge} &nbsp;
-                <span style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                <span style="background: #ECEBE5; border: 1px solid #B3B1A6; color: #2E6B5E; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                     Source: {current_q.get('source')}
                 </span>
             </div>
         </div>
-        <div style="color: #e2e8f0; font-size: 13.5px; line-height: 1.6; margin-top: 12px; background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 6px; border: 1px solid #1e293b;">
+        <div class="exam-prompt-box">
             {current_q.get('prompt')}
         </div>
     </div>
@@ -119,13 +119,13 @@ def render_exam_lab_tab(active_role="retail_customer"):
     # Action buttons
     btn_col1, btn_col2, btn_col3, btn_col4 = st.columns([2, 1.5, 1.5, 2])
     with btn_col1:
-        submit_eval = st.button("Submit for AI Evaluation", type="primary", use_container_width=True, key=f"eval_btn_{q_id}")
+        submit_eval = st.button("Submit for AI Evaluation", type="primary", width="stretch", key=f"eval_btn_{q_id}")
     with btn_col2:
-        req_hint1 = st.button("Request Hint (Level 1)", use_container_width=True, key=f"hint1_btn_{q_id}")
+        req_hint1 = st.button("Request Hint (Level 1)", width="stretch", key=f"hint1_btn_{q_id}")
     with btn_col3:
-        req_hint2 = st.button("Request Hint (Level 2)", use_container_width=True, key=f"hint2_btn_{q_id}")
+        req_hint2 = st.button("Request Hint (Level 2)", width="stretch", key=f"hint2_btn_{q_id}")
     with btn_col4:
-        gen_iso = st.button("Generate Practice Variant", use_container_width=True, key=f"iso_btn_{q_id}")
+        gen_iso = st.button("Generate Practice Variant", width="stretch", key=f"iso_btn_{q_id}")
 
     # Handle evaluation submission
     eval_state_key = f"eval_result_{q_id}"
@@ -159,9 +159,9 @@ def render_exam_lab_tab(active_role="retail_customer"):
     if hint_state_key in st.session_state:
         htitle, htext = st.session_state[hint_state_key]
         st.markdown(f"""
-        <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; border-radius: 6px; padding: 12px 16px; margin: 12px 0;">
-            <div style="font-size: 11px; font-weight: 700; color: #f59e0b; text-transform: uppercase;">{htitle}</div>
-            <div style="color: #cbd5e1; font-size: 13px; margin-top: 4px; line-height: 1.5;">{htext}</div>
+        <div class="exam-hint-box">
+            <div style="font-size: 11px; font-weight: 700; color: #A8322A; text-transform: none;">{htitle}</div>
+            <div style="color: #4B525B; font-size: 13px; margin-top: 4px; line-height: 1.5;">{htext}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -180,12 +180,12 @@ def render_exam_lab_tab(active_role="retail_customer"):
         total_vars = iso_data.get("total_variations", 4)
 
         st.markdown(f"""
-        <div style="background: rgba(192, 132, 252, 0.08); border-left: 3px solid #c084fc; border-radius: 6px; padding: 12px 16px; margin: 12px 0 8px 0;">
-            <div style="font-size: 11px; font-weight: 700; color: #c084fc; text-transform: uppercase;">
-                🔄 Isomorphic Practice Problem (Adapting '{current_q.get('title')}')
+        <div class="exam-challenge-box">
+            <div style="font-size: 11px; font-weight: 700; color: #4B525B; text-transform: none;">
+                Practice variant (Adapting '{current_q.get('title')}')
             </div>
-            <div style="color: #cbd5e1; font-size: 12px; margin-top: 4px;">
-                Department: <b style="color: #f8fafc;">{iso_data.get('domain')}</b> &bull; Scenario: <b style="color: #f8fafc;">{iso_data.get('scenario_title')}</b> (Variation {current_var_idx + 1} of {total_vars})
+            <div style="color: #4B525B; font-size: 12px; margin-top: 4px;">
+                Department: <b style="color: #16191D;">{iso_data.get('domain')}</b> &bull; Scenario: <b style="color: #16191D;">{iso_data.get('scenario_title')}</b> (Variation {current_var_idx + 1} of {total_vars})
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -201,7 +201,7 @@ def render_exam_lab_tab(active_role="retail_customer"):
                 label_visibility="collapsed"
             )
         with iso_nav_col2:
-            cycle_var = st.button("🔄 Next Variation", key=f"iso_next_var_{q_id}", use_container_width=True)
+            cycle_var = st.button("Next variation", key=f"iso_next_var_{q_id}", width="stretch")
 
         if sel_dept != dept_options[current_dept_idx]:
             new_dept_idx = dept_options.index(sel_dept)
@@ -214,7 +214,7 @@ def render_exam_lab_tab(active_role="retail_customer"):
 
         if iso_data.get("ai_generated_content"):
             st.markdown(f"""
-            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 14px 18px; margin-bottom: 12px; color: #e2e8f0; font-size: 13px; line-height: 1.5;">
+            <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-radius: 6px; padding: 14px 18px; margin-bottom: 12px; color: #16191D; font-size: 13px; line-height: 1.5;">
 {iso_data['ai_generated_content']}
             </div>
             """, unsafe_allow_html=True)
@@ -242,7 +242,7 @@ def render_exam_lab_tab(active_role="retail_customer"):
 
         # Dedicated Interactive Workspace for Isomorphic Variant (Option A)
         st.markdown("""
-        <div style="font-size: 11px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 14px; margin-bottom: 4px;">
+        <div style="font-size: 11px; font-weight: 700; color: #4B525B; text-transform: none;  margin-top: 14px; margin-bottom: 4px;">
             Variant PL/pgSQL & SQL Execution Buffer
         </div>
         """, unsafe_allow_html=True)
@@ -267,13 +267,13 @@ def render_exam_lab_tab(active_role="retail_customer"):
             eval_variant_clicked = st.button(
                 "Evaluate Variant Submission",
                 type="primary",
-                use_container_width=True,
+                width="stretch",
                 key=f"eval_v_btn_{q_id}_{current_dept_idx}_{current_var_idx}"
             )
         with v_btn_col2:
             reset_variant_clicked = st.button(
                 "Reset Starter Code",
-                use_container_width=True,
+                width="stretch",
                 key=f"reset_v_btn_{q_id}_{current_dept_idx}_{current_var_idx}"
             )
 
@@ -297,31 +297,31 @@ def render_exam_lab_tab(active_role="retail_customer"):
             v_passed = v_res.get("passed_checks", [])
             v_missing = v_res.get("missing_checks", [])
 
-            badge_color = "#10b981" if v_score >= 80 else ("#f59e0b" if v_score >= 50 else "#ef4444")
+            badge_color = "#86C5A0" if v_score >= 80 else ("#CDA85A" if v_score >= 50 else "#E2745C")
 
-            passed_html = "".join([f"<li style='color: #86efac; margin: 2px 0;'>✓ {c}</li>" for c in v_passed]) if v_passed else "<li style='color: #94a3b8;'>No target invariants matched yet.</li>"
-            missing_html = "".join([f"<li style='color: #fca5a5; margin: 2px 0;'>✕ {c}</li>" for c in v_missing]) if v_missing else "<li style='color: #86efac;'>All key invariants verified!</li>"
+            passed_html = "".join([f"<li style='color: #A9D8BC; margin: 2px 0;'>✓ {c}</li>" for c in v_passed]) if v_passed else "<li style='color: #9DB0B0;'>No target invariants matched yet.</li>"
+            missing_html = "".join([f"<li style='color: #F1A896; margin: 2px 0;'>✕ {c}</li>" for c in v_missing]) if v_missing else "<li style='color: #A9D8BC;'>All key invariants verified!</li>"
 
             st.markdown(f"""
-            <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid {badge_color}; border-radius: 6px; padding: 12px 16px; margin: 10px 0;">
+            <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-left: 4px solid {badge_color}; border-radius: 6px; padding: 12px 16px; margin: 10px 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 11px; font-weight: 700; color: {badge_color}; text-transform: uppercase;">
+                    <span style="font-size: 11px; font-weight: 700; color: {badge_color}; text-transform: none;">
                         Variant Evaluation &bull; {v_band}
                     </span>
-                    <span style="font-size: 13px; font-weight: 800; color: #f8fafc; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">
+                    <span style="font-size: 13px; font-weight: 800; color: #16191D; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">
                         {v_score}% Match
                     </span>
                 </div>
-                <div style="color: #cbd5e1; font-size: 12.5px; line-height: 1.4; margin-bottom: 8px;">
+                <div style="color: #4B525B; font-size: 12.5px; line-height: 1.4; margin-bottom: 8px;">
                     {v_feedback}
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
                     <div>
-                        <div style="font-weight: 700; color: #86efac; margin-bottom: 2px;">Verified Invariants:</div>
+                        <div style="font-weight: 700; color: #2E6B5E; margin-bottom: 2px;">Verified Invariants:</div>
                         <ul style="margin: 0 0 0 16px; padding: 0;">{passed_html}</ul>
                     </div>
                     <div>
-                        <div style="font-weight: 700; color: #fca5a5; margin-bottom: 2px;">Missing Invariants:</div>
+                        <div style="font-weight: 700; color: #A8322A; margin-bottom: 2px;">Missing Invariants:</div>
                         <ul style="margin: 0 0 0 16px; padding: 0;">{missing_html}</ul>
                     </div>
                 </div>
@@ -352,14 +352,14 @@ def render_exam_lab_tab(active_role="retail_customer"):
         if diagnosis_text.strip().startswith("<div"):
             formatted_diagnosis = diagnosis_text.replace("\n", "")
         else:
-            formatted_diagnosis = f"<div style='line-height: 1.35; color: #cbd5e1;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
+            formatted_diagnosis = f"<div style='line-height: 1.35; color: #D9E1DE;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
 
         st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #10b981; border-radius: 8px; padding: 14px 18px; margin-top: 14px;">
-            <div style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+        <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-left: 4px solid #86C5A0; border-radius: 8px; padding: 14px 18px; margin-top: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: #2E6B5E; text-transform: none;  margin-bottom: 6px;">
                 Socratic Professor Feedback & Diagnostic Analysis
             </div>
-            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.35;">
+            <div style="color: #4B525B; font-size: 13px; line-height: 1.35;">
                 {formatted_diagnosis}
             </div>
         </div>
@@ -376,11 +376,11 @@ def render_exam_lab_tab(active_role="retail_customer"):
     st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
     nav_c1, nav_c2 = st.columns([1, 1])
     with nav_c1:
-        if st.button("Previous Question", use_container_width=True, key=f"prev_btn_{selected_diff}_{cur_idx}"):
+        if st.button("Previous Question", width="stretch", key=f"prev_btn_{selected_diff}_{cur_idx}"):
             st.session_state[cursor_key] = (cur_idx - 1) % len(tier_questions)
             st.rerun()
     with nav_c2:
-        if st.button("Next Question", type="primary", use_container_width=True, key=f"next_btn_{selected_diff}_{cur_idx}"):
+        if st.button("Next Question", type="primary", width="stretch", key=f"next_btn_{selected_diff}_{cur_idx}"):
             st.session_state[cursor_key] = (cur_idx + 1) % len(tier_questions)
             st.rerun()
 

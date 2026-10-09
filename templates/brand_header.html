@@ -1,0 +1,14 @@
+<section class="hero">
+<div class="hero-top">
+<div class="status-chip {{ status_class }}">{{ status_text }}</div>
+<div class="hero-meta">Enforcement lives in the database, not in the app</div>
+</div>
+<h1 class="hero-title">Database RBAC Simulator &amp; Trigger Visualizer</h1>
+<p class="hero-lede">Run the same statement as different PostgreSQL roles and see which layer decides its outcome: the grant check, a BEFORE trigger, or the commit.</p>
+<ol class="track" aria-label="Order in which a statement meets each layer">
+<li class="gate gate-block"><span class="gate-index">1</span><span class="gate-title">Grant check</span><span class="gate-text">The role's GRANTs decide whether the statement may touch the table. A denied statement never reaches a row.</span><span class="gate-tag">Can block</span></li>
+<li class="gate gate-block"><span class="gate-index">2</span><span class="gate-title">BEFORE trigger</span><span class="gate-text">Business rules run inside the database on the incoming row. A RAISE EXCEPTION aborts the statement.</span><span class="gate-tag">Can block</span></li>
+<li class="gate gate-pass"><span class="gate-index">3</span><span class="gate-title">Commit</span><span class="gate-text">Row and balance changes commit together, or not at all.</span><span class="gate-tag">Final state</span></li>
+<li class="gate gate-record"><span class="gate-index">4</span><span class="gate-title">AFTER trigger</span><span class="gate-text">log_audit_event() writes the old and new values to audit_log.</span><span class="gate-tag">Records the change</span></li>
+</ol>
+</section>

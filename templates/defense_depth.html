@@ -1,0 +1,17 @@
+<div class="defense-depth-grid">
+<div class="defense-depth-card tier-1">
+<div class="defense-card-tag">Tier 1: Access check</div>
+<div class="defense-card-title">PostgreSQL grants</div>
+<div class="defense-card-desc">The role's GRANTs are checked before the statement runs. Without the privilege the statement fails with SQLSTATE <code>42501</code> (insufficient_privilege), and no row is read or written.</div>
+</div>
+<div class="defense-depth-card tier-2">
+<div class="defense-card-tag">Tier 2: Business firewalls</div>
+<div class="defense-card-title">In-database PL/pgSQL triggers</div>
+<div class="defense-card-desc">BEFORE triggers check KYC, account status, open fraud alerts, anti-stacking and workflow rules against the incoming row. A <code>RAISE EXCEPTION</code> stops the statement and returns a named error code.</div>
+</div>
+<div class="defense-depth-card tier-3">
+<div class="defense-card-tag">Tier 3: Atomicity and audit</div>
+<div class="defense-card-title">Commit or roll back, then record</div>
+<div class="defense-card-desc">A failed check rolls back every change made by that statement, including balance updates a trigger had already applied. Successful changes are written to <code>audit_log</code> by AFTER triggers in the same transaction.</div>
+</div>
+</div>

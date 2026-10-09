@@ -80,7 +80,7 @@ DEPARTMENTS = {
                 "columns": ["alert_status"],
                 "sql": "UPDATE fraud_alerts SET alert_status = %s WHERE account_id = %s;",
                 "inputs": [
-                    {"label": "New Alert Status", "type": "selectbox", "options": ["UNDER_INVESTIGATION", "FALSE_POSITIVE"]},
+                    {"label": "New Alert Status", "type": "selectbox", "options": ["UNDER_INVESTIGATION", "FALSE_POSITIVE", "RESOLVED"]},
                     {"label": "Account ID", "type": "number"}
                 ]
             }

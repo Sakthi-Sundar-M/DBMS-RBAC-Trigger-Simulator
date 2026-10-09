@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database RBAC Simulator & Trigger Visualizer</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- ===================================================================
+             SIDEBAR NAVIGATION
+             =================================================================== -->
+        <aside class="sidebar">
+            <div>
+                <h2 class="sidebar-heading">Active Security</h2>
+                <label class="sidebar-label" for="deptSelect">Department</label>
+                <select id="deptSelect" class="form-select">
+                    <option value="banking" selected>Banking Department</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="sidebar-label">Simulated PostgreSQL Role</label>
+                <div class="radio-group">
+                    <label class="radio-option active">
+                        <input type="radio" name="role_radio" value="it_security_admin" checked>
+                        <span>IT Security Admin</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="internal_auditor">
+                        <span>Internal Auditor</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="fraud_analyst">
+                        <span>Fraud Analyst</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="branch_manager">
+                        <span>Branch Manager</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="senior_underwriter">
+                        <span>Senior Underwriter</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="loan_officer">
+                        <span>Loan Officer</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="bank_teller">
+                        <span>Bank Teller</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="csr">
+                        <span>CSR</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="role_radio" value="retail_customer">
+                        <span>Retail Customer</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Active Role Card -->
+            <div class="sidebar-role-card">
+                <div class="sidebar-role-header">
+                    <div id="sidebarRoleTitle" class="sidebar-role-title">IT Security Admin</div>
+                    <span class="sidebar-role-badge">ACTIVE</span>
+                </div>
+                <div id="sidebarRoleDesc" class="sidebar-role-desc">
+                    Security & compliance: strictly read-only inspection of the audit trail.
+                </div>
+            </div>
+
+            <!-- Demo Cheatsheet -->
+            <div class="collapsible-container">
+                <div class="collapsible-header">
+                    <span><span class="collapsible-icon">▶</span> Demo Test Cheatsheet</span>
+                </div>
+                <div class="collapsible-content">
+                    <p style="margin-bottom: 6px;"><b>Role Scenarios to Test:</b></p>
+                    <ul style="padding-left: 18px; line-height: 1.6;">
+                        <li><b>Bank Teller</b>: Allowed to create accounts and deposit cash.</li>
+                        <li><b>Branch Manager</b>: Allowed to freeze accounts and approve loans.</li>
+                        <li><b>Retail Customer</b>: Allowed to initiate peer daily transactions.</li>
+                        <li><b>IT Security Admin</b>: Strictly read-only for audit logs.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bio & Profile -->
+            <div>
+                <div class="bio-container">
+                    <div class="bio-badge">DBMS PROJECT</div>
+                    <div class="bio-title">M. Sakthi Sundar</div>
+                    <div class="bio-sub">Reg No: 25BCE1244 &bull; Team MICHAEL</div>
+                    <div class="bio-lead">B.Tech CSE &bull; <b>VIT Chennai</b></div>
+                    <div class="bio-guide">Project Guide: <b style="color: #f8fafc;">Dr. Swaminathan A</b></div>
+                </div>
+                <div class="social-btn-container">
+                    <a href="https://github.com/Sakthi-Sundar-M" target="_blank" class="social-btn">GitHub</a>
+                    <a href="https://www.linkedin.com/in/sakthi-sundar-m-34345a267" target="_blank" class="social-btn">LinkedIn</a>
+                </div>
+                <a href="https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator" target="_blank" class="social-btn-repo">GitHub Repository</a>
+            </div>
+        </aside>
+
+        <!-- ===================================================================
+             MAIN DASHBOARD
+             =================================================================== -->
+        <main class="main-content">
+            <!-- Brand Banner Header -->
+            <header class="brand-container">
+                <div>
+                    <h1 class="brand-title">Database RBAC Simulator &amp; Trigger Visualizer</h1>
+                    <p class="brand-subtitle">Enterprise PostgreSQL 16 &bull; PL/pgSQL Defense-in-Depth Observability Engine</p>
+                </div>
+                <div>
+                    <span class="brand-status-badge online">
+                        ● POSTGRESQL ONLINE (SSL)
+                    </span>
+                </div>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="tab-simulator">Banking Operations &amp; Simulator</button>
+                <button class="tab-btn" data-tab="tab-trigger-code">Trigger Code for Selected Operation</button>
+                <button class="tab-btn" data-tab="tab-theory">In-Engine Trigger Theory &amp; Buffers</button>
+                <button class="tab-btn" data-tab="tab-flowchart">Role-Specific Execution Flowchart</button>
+                <button class="tab-btn" data-tab="tab-exam-lab">Exam Lab &amp; AI Evaluator</button>
+            </nav>
+
+            <!-- ===============================================================
+                 TAB 1: BANKING OPERATIONS & SIMULATOR
+                 =============================================================== -->
+            <div id="tab-simulator" class="tab-pane active">
+                <!-- KPI Ribbon -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Active Security Role</div>
+                        <div id="kpiRoleValue" class="kpi-value" style="color: #38bdf8;">IT Security Admin</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">PostgreSQL Catalogs</div>
+                        <div class="kpi-value" style="color: #c084fc;">information_schema</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">PL/pgSQL Triggers</div>
+                        <div class="kpi-value" style="color: #f59e0b;">4 In-Engine Firewalls</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Verification Harness</div>
+                        <div class="kpi-value" style="color: #10b981;">12/12 Tests Passing</div>
+                    </div>
+                </div>
+
+                <!-- Simulation Header -->
+                <h2 class="section-title">Simulate Database Operation</h2>
+                <div class="operation-selector-group">
+                    <label class="sidebar-label" for="operationSelect">Select a Banking Operation to Test:</label>
+                    <select id="operationSelect" class="form-select" style="max-width: 500px;">
+                        <option value="create_transaction" selected>❌ Create New Transaction (INSERT)</option>
+                        <option value="create_account">❌ Create New Account (INSERT)</option>
+                        <option value="update_balance">❌ Update Account Balance (UPDATE)</option>
+                        <option value="log_fraud">❌ Log Fraud Alert (INSERT)</option>
+                        <option value="freeze_account">❌ Update Account Status (Freeze/Unfreeze)</option>
+                        <option value="approve_loan">❌ Update Loan Status (UPDATE)</option>
+                        <option value="view_audit">✔️ View Audit Logs (SELECT)</option>
+                    </select>
+                </div>
+
+                <!-- Access Denied / Granted Banner -->
+                <div id="simulationAlert" class="alert-box alert-danger">
+                    <span>❌</span>
+                    <span id="alertMessage"><b>Access Denied</b>: Active role <b>IT Security Admin</b> does not hold <code>INSERT</code> privilege on <code>daily_transactions</code>.</span>
+                </div>
+
+                <!-- Action Toolbar: Run Operation Button & Show Raw SQL Query Checkbox -->
+                <div class="action-toolbar">
+                    <button id="runOpBtn" class="btn-primary">Run Operation</button>
+                    <label class="checkbox-label" for="showSqlCheckbox">
+                        <input type="checkbox" id="showSqlCheckbox">
+                        <span>Show Raw SQL Query</span>
+                    </label>
+                </div>
+
+                <!-- Raw SQL Query Preview -->
+                <div id="sqlPreviewCard" class="sql-preview-card">
+                    <div style="font-size: 11px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">Target SQL Query</div>
+                    <code id="sqlPreviewText" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #38BDF8;">SELECT log_id, changed_at, changed_by AS actor_role, table_name, record_id, account_id, action, old_value, new_value FROM audit_log ORDER BY changed_at DESC LIMIT 50;</code>
+                </div>
+
+                <!-- Live Trace Stepper Container -->
+                <div class="pipeline-container">
+                    <div class="pipeline-header">
+                        <div class="pipeline-title">Live Trace &amp; Trigger Pipeline</div>
+                        <div class="pipeline-subtitle">In-Engine PostgreSQL PL/pgSQL</div>
+                    </div>
+                    <div id="stepperList" class="stepper-list">
+                        <div class="step-card failed">
+                            <div>✕ RBAC Authorization Denied: Role lacks INSERT privilege</div>
+                            <span class="step-badge failed">FAILED</span>
+                        </div>
+                        <div class="step-card blocked">
+                            <div>— Account status check skipped</div>
+                            <span class="step-badge blocked">BLOCKED</span>
+                        </div>
+                        <div class="step-card blocked">
+                            <div>— Fraud check skipped</div>
+                            <span class="step-badge blocked">BLOCKED</span>
+                        </div>
+                        <div class="step-card blocked">
+                            <div>— Transfer execution skipped</div>
+                            <span class="step-badge blocked">BLOCKED</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===============================================================
+                 TAB 2: TRIGGER CODE VIEWER
+                 =============================================================== -->
+            <div id="tab-trigger-code" class="tab-pane">
+                <h2 class="section-title">In-Engine Trigger Code Repository</h2>
+                <p style="color: #94A3B8; margin-bottom: 16px;">Inspect procedural PL/pgSQL triggers running inside the PostgreSQL server runtime.</p>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                    <button class="social-btn code-tab-btn active" data-code="code-tx">process_transaction.sql</button>
+                    <button class="social-btn code-tab-btn" data-code="code-loan">check_loan_eligibility.sql</button>
+                    <button class="social-btn code-tab-btn" data-code="code-wf">enforce_loan_workflow.sql</button>
+                    <button class="social-btn code-tab-btn" data-code="code-audit">log_audit_event.sql</button>
+                </div>
+
+                <div class="code-viewer-container">
+                    <div id="code-tx" class="trigger-code-block">
+                        <div class="code-header"><span class="code-title">sql/triggers/process_transaction.sql</span></div>
+                        <pre><code>-- Trigger 1: process_transaction (BEFORE INSERT on daily_transactions)
+CREATE OR REPLACE FUNCTION process_transaction()
+RETURNS TRIGGER SECURITY DEFINER AS $$
+DECLARE
+    sender_kyc VARCHAR(20);
+    receiver_kyc VARCHAR(20);
+    sender_status VARCHAR(20);
+    receiver_status VARCHAR(20);
+    sender_balance NUMERIC(15, 2);
+    alert_account INT;
+    alert_reason TEXT;
+BEGIN
+    -- 1. Identity & KYC Verification Check
+    SELECT kyc_status INTO sender_kyc FROM customer_profiles cp
+    JOIN customer_accounts ca ON ca.profile_id = cp.profile_id WHERE ca.account_id = NEW.sender_id;
+    SELECT kyc_status INTO receiver_kyc FROM customer_profiles cp
+    JOIN customer_accounts ca ON ca.profile_id = cp.profile_id WHERE ca.account_id = NEW.receiver_id;
+
+    IF sender_kyc IS NULL OR sender_kyc <> 'APPROVED' THEN
+        RAISE EXCEPTION 'KYC_CHECK_FAILED: Sender KYC verification not approved (status: %).', COALESCE(sender_kyc, 'NOT_FOUND');
+    END IF;
+
+    -- 2. Operational Health Check (Frozen / Closed)
+    SELECT account_status, balance INTO sender_status, sender_balance FROM customer_accounts WHERE account_id = NEW.sender_id;
+    IF sender_status IN ('FROZEN', 'CLOSED') THEN
+        RAISE EXCEPTION 'ACCOUNT_FROZEN_BLOCKED: Sender account % is currently %.', NEW.sender_id, sender_status;
+    END IF;
+
+    -- 3. Risk Intelligence & Fraud Alerts Check
+    SELECT account_id, risk_reason INTO alert_account, alert_reason FROM fraud_alerts
+    WHERE account_id IN (NEW.sender_id, NEW.receiver_id) AND alert_status IN ('OPEN', 'UNDER_INVESTIGATION') LIMIT 1;
+    IF FOUND THEN
+        RAISE EXCEPTION 'FRAUD_CHECK_FAILED: Active fraud alert on file for account % (Reason: %).', alert_account, alert_reason;
+    END IF;
+
+    -- 4. Balance Sufficiency & In-Engine Atomic Mutation
+    IF sender_balance < NEW.amount THEN
+        RAISE EXCEPTION 'INSUFFICIENT_FUNDS: Sender balance ($%) insufficient for transfer amount ($%).', sender_balance, NEW.amount;
+    END IF;
+
+    UPDATE customer_accounts SET balance = balance - NEW.amount WHERE account_id = NEW.sender_id;
+    UPDATE customer_accounts SET balance = balance + NEW.amount WHERE account_id = NEW.receiver_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+
+                    <div id="code-loan" class="trigger-code-block" style="display: none;">
+                        <div class="code-header"><span class="code-title">sql/triggers/check_loan_eligibility.sql</span></div>
+                        <pre><code>-- Trigger 2: check_loan_eligibility (BEFORE INSERT on loan_applications)
+CREATE OR REPLACE FUNCTION check_loan_eligibility()
+RETURNS TRIGGER SECURITY DEFINER AS $$
+DECLARE
+    customer_kyc VARCHAR(20);
+    existing_loan_id INT;
+BEGIN
+    SELECT kyc_status INTO customer_kyc FROM customer_profiles WHERE profile_id = NEW.profile_id;
+    IF customer_kyc IS NULL OR customer_kyc <> 'APPROVED' THEN
+        RAISE EXCEPTION 'LOAN_KYC_FAILED: Loan applicant KYC not approved.';
+    END IF;
+
+    SELECT loan_id INTO existing_loan_id FROM loan_applications
+    WHERE profile_id = NEW.profile_id AND approval_status IN ('SUBMITTED', 'UNDERWRITE') LIMIT 1;
+    IF FOUND THEN
+        RAISE EXCEPTION 'LOAN_STACKING_BLOCKED: Customer already has active loan under review (Loan ID: %).', existing_loan_id;
+    END IF;
+
+    NEW.approval_status := COALESCE(NEW.approval_status, 'SUBMITTED');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+
+                    <div id="code-wf" class="trigger-code-block" style="display: none;">
+                        <div class="code-header"><span class="code-title">sql/triggers/enforce_loan_workflow.sql</span></div>
+                        <pre><code>-- Trigger 3: enforce_loan_workflow (BEFORE UPDATE on loan_applications)
+CREATE OR REPLACE FUNCTION enforce_loan_workflow()
+RETURNS TRIGGER SECURITY DEFINER AS $$
+BEGIN
+    IF OLD.approval_status = NEW.approval_status THEN
+        RETURN NEW;
+    END IF;
+
+    IF OLD.approval_status = 'SUBMITTED' AND NEW.approval_status = 'APPROVED' THEN
+        RAISE EXCEPTION 'WORKFLOW_STAGE_SKIPPED: Must move to UNDERWRITE before final approval.';
+    END IF;
+
+    IF OLD.approval_status = 'UNDERWRITE' AND NEW.approval_status = 'SUBMITTED' THEN
+        RAISE EXCEPTION 'WORKFLOW_BACKWARD_TRANSITION: Backward transitions prohibited.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+
+                    <div id="code-audit" class="trigger-code-block" style="display: none;">
+                        <div class="code-header"><span class="code-title">sql/triggers/log_audit_event.sql</span></div>
+                        <pre><code>-- Trigger 4: log_audit_event (AFTER UPDATE on customer_accounts & loan_applications)
+CREATE OR REPLACE FUNCTION log_audit_event()
+RETURNS TRIGGER SECURITY DEFINER AS $$
+DECLARE
+    resolved_acc_id INT;
+BEGIN
+    IF TG_TABLE_NAME = 'customer_accounts' THEN
+        resolved_acc_id := NEW.account_id;
+        INSERT INTO audit_log (table_name, record_id, account_id, action, old_value, new_value, changed_by)
+        VALUES ('customer_accounts', NEW.account_id, resolved_acc_id, 'UPDATE',
+                format('balance=%s, status=%s', OLD.balance, OLD.account_status),
+                format('balance=%s, status=%s', NEW.balance, NEW.account_status),
+                COALESCE(NULLIF(current_setting('role', true), 'none'), CURRENT_USER));
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===============================================================
+                 TAB 3: THEORY & BUFFERS
+                 =============================================================== -->
+            <div id="tab-theory" class="tab-pane">
+                <h2 class="section-title">In-Engine Trigger Theory &amp; Architecture</h2>
+                
+                <div class="defense-depth-grid">
+                    <div class="defense-depth-card">
+                        <div class="defense-card-tag">Tier 1: Access Check</div>
+                        <div class="defense-card-title">PostgreSQL RBAC Catalog</div>
+                        <div class="defense-card-desc">
+                            Checks role privileges in <code>information_schema</code>. Unauthorized queries are halted immediately with 403 <code>InsufficientPrivilege</code> without touching disk rows.
+                        </div>
+                    </div>
+                    <div class="defense-depth-card">
+                        <div class="defense-card-tag">Tier 2: Business Firewalls</div>
+                        <div class="defense-card-title">In-Engine PL/pgSQL Triggers</div>
+                        <div class="defense-card-desc">
+                            Intercepts writes in memory before commitment (<code>NEW</code> buffer). Checks KYC, account freeze status, fraud alerts, anti-stacking, and workflow stages.
+                        </div>
+                    </div>
+                    <div class="defense-depth-card">
+                        <div class="defense-card-tag">Tier 3: Guarantee</div>
+                        <div class="defense-card-title">ACID Atomicity &amp; Audit</div>
+                        <div class="defense-card-desc">
+                            Rule violation calls <code>RAISE EXCEPTION</code> triggering an automatic <code>ROLLBACK</code>. Success commits to disk and cascades to tamper-proof <code>audit_log</code>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===============================================================
+                 TAB 4: EXECUTION FLOWCHART
+                 =============================================================== -->
+            <div id="tab-flowchart" class="tab-pane">
+                <h2 class="section-title">Role-Specific Execution Flowchart</h2>
+                <div class="pipeline-container" style="text-align: center; padding: 40px;">
+                    <svg width="680" height="180" viewBox="0 0 680 180" style="max-width: 100%;">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0284c7;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Node 1: Request -->
+                        <rect x="20" y="65" width="130" height="50" rx="8" fill="#1E293B" stroke="#38BDF8" stroke-width="1.5"/>
+                        <text x="85" y="95" fill="#FFFFFF" font-size="12" font-weight="600" text-anchor="middle">Client SQL Query</text>
+                        <line x1="150" y1="90" x2="190" y2="90" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrow)"/>
+                        
+                        <!-- Node 2: RBAC -->
+                        <rect x="190" y="65" width="130" height="50" rx="8" fill="#1E293B" stroke="#EF4444" stroke-width="1.5"/>
+                        <text x="255" y="95" fill="#EF4444" font-size="12" font-weight="600" text-anchor="middle">RBAC Privilege Check</text>
+                        <line x1="320" y1="90" x2="360" y2="90" stroke="#64748B" stroke-width="2"/>
+
+                        <!-- Node 3: BEFORE Trigger -->
+                        <rect x="360" y="65" width="130" height="50" rx="8" fill="#111827" stroke="#F59E0B" stroke-width="1.5"/>
+                        <text x="425" y="95" fill="#F59E0B" font-size="12" font-weight="600" text-anchor="middle">BEFORE Trigger Buffer</text>
+                        <line x1="490" y1="90" x2="530" y2="90" stroke="#64748B" stroke-width="2"/>
+
+                        <!-- Node 4: Table Commit -->
+                        <rect x="530" y="65" width="130" height="50" rx="8" fill="#111827" stroke="#10B981" stroke-width="1.5"/>
+                        <text x="595" y="95" fill="#10B981" font-size="12" font-weight="600" text-anchor="middle">Commit to Storage</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- ===============================================================
+                 TAB 5: EXAM LAB & AI EVALUATOR
+                 =============================================================== -->
+            <div id="tab-exam-lab" class="tab-pane">
+                <h2 class="section-title">Exam Practice Lab &amp; AI Evaluator</h2>
+                <div class="pipeline-container">
+                    <p style="color: #CBD5E1; margin-bottom: 12px;"><b>Problem 1</b>: Prevent overdraft by intercepting account withdrawals when balance is insufficient.</p>
+                    <textarea class="form-select" style="height: 120px; font-family: 'JetBrains Mono', monospace;" readonly>CREATE OR REPLACE FUNCTION check_overdraft()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.amount > (SELECT balance FROM customer_accounts WHERE account_id = NEW.sender_id) THEN
+        RAISE EXCEPTION 'INSUFFICIENT_FUNDS';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;</textarea>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Interactive script -->
+    <script src="./app.js"></script>
+</body>
+</html>
