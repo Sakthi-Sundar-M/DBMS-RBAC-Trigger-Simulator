@@ -1,6 +1,12 @@
 import streamlit as st
+import html
 import pandas as pd
-from db_connection import execute_action_with_snapshot, check_table_permission, get_all_permissions_cache
+from db_connection import (
+    execute_action_with_snapshot, 
+    check_table_permission, 
+    get_all_permissions_cache,
+    is_db_connected
+)
 from visualizer import (
     render_live_trace, 
     render_diff_viewer,
@@ -10,120 +16,22 @@ from visualizer import (
 )
 from config import DEPARTMENTS
 from ai_engine.exam_lab import render_exam_lab_tab
+from frontend_utils import (
+    load_css, 
+    render_brand_header, 
+    render_sidebar_role_card, 
+    render_sidebar_bio,
+    render_defense_depth_grid
+)
 
 ACRONYMS = {"it", "csr", "dba", "hipaa", "aml", "ta", "bi", "rbac", "kyc", "vit", "cse"}
 st.set_page_config(page_title="RBAC & Trigger Visualizer", layout="wide")
 
 # =============================================================================
-# MODERN FINTECH DESIGN SYSTEM (CSS)
+# LOAD SEPARATED FRONTEND STYLESHEET
 # =============================================================================
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap');
-    
-    html, body, [class*="css"], .stMarkdown p { font-family: 'Inter', sans-serif !important; }
-    h1, h2, h3, h4 { font-family: 'Poppins', sans-serif !important; }
+load_css()
 
-    /* Main Branding Header */
-    .brand-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 14px;
-        padding: 20px 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
-    .brand-title {
-        background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800 !important;
-        font-size: 2rem !important;
-        letter-spacing: -0.5px;
-        margin-bottom: 4px;
-    }
-    .brand-subtitle {
-        color: #94A3B8 !important;
-        font-size: 13px !important;
-        font-weight: 500;
-    }
-
-    /* KPI Metric Cards */
-    .kpi-card {
-        background: #111827;
-        border: 1px solid #1F2937;
-        border-radius: 10px;
-        padding: 12px 16px;
-        transition: all 0.2s ease;
-    }
-    .kpi-card:hover {
-        border-color: #38BDF8;
-        transform: translateY(-2px);
-    }
-    .kpi-title {
-        font-size: 11px;
-        color: #64748B;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .kpi-value {
-        font-size: 15px;
-        color: #F8FAFC;
-        font-weight: 700;
-        margin-top: 4px;
-    }
-
-    /* Modern Primary Action Button */
-    button[kind="primary"] {
-        background: linear-gradient(90deg, #0284C7 0%, #2563EB 100%) !important;
-        border: none !important;
-        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4) !important;
-        transition: all 0.3s ease !important;
-        border-radius: 8px !important;
-        padding: 0.5rem 1.5rem !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.5px !important;
-    }
-    button[kind="primary"]:hover {
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6) !important;
-        transform: translateY(-1px) !important;
-    }
-
-    /* Bio Card */
-    .bio-container {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-        border: 1px solid #3730a3;
-        border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-    .bio-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 9999px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-    }
-    .social-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 10px 18px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        margin-right: 10px;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 def format_role_name(role_key):
     words = role_key.split('_') 
@@ -146,18 +54,15 @@ ROLE_DESCRIPTIONS = {
 # =============================================================================
 # BRANDING HEADER
 # =============================================================================
-st.markdown("""
-<div class="brand-container">
-    <div>
-        <div class="brand-title">Database RBAC Simulator & Trigger Visualizer</div>
-    </div>
-    <div>
-        <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
-            POSTGRESQL ONLINE (SSL)
-        </span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+db_online = is_db_connected()
+render_brand_header(is_connected=db_online)
+if not db_online:
+    st.info(
+        "**Offline simulator mode.** PostgreSQL database connection is offline. "
+        "You can explore all architectural features (**Trigger Code Viewer**, **ECA Dissector**, "
+        "**Flowcharts**, and **AI Exam Lab**) without a database. "
+        "To execute live SQL transactions against Neon, configure your credentials in `.streamlit/secrets.toml`."
+    )
 
 # -----------------------------------------------------------------------------
 # SIDEBAR CONTROLS
@@ -171,78 +76,30 @@ active_role = st.sidebar.radio(
 )
 
 role_desc = ROLE_DESCRIPTIONS.get(active_role, "Authenticated database user role.")
-st.sidebar.markdown(f"""
-<div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; margin-top: 10px; margin-bottom: 12px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-        <span style="color: #38bdf8; font-weight: 700; font-size: 13px;">{format_role_name(active_role)}</span>
-        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700;">ACTIVE</span>
-    </div>
-    <div style="color: #94a3b8; font-size: 12px; line-height: 1.4;">{role_desc}</div>
-</div>
-""", unsafe_allow_html=True)
+render_sidebar_role_card(format_role_name(active_role), role_desc)
 
 with st.sidebar.expander("Demo Test Cheatsheet", expanded=False):
     st.markdown("""
     **Pre-seeded Demo Accounts:**
-    - **101 (Alice Smith)**: Active, KYC Approved ($10,000)
-    - **102 (Bob Jones)**: Active, KYC Approved ($5,000)
-    - **103 (Charlie)**: Active, KYC **PENDING** ($3,000)
-    - **104 (Diana)**: **FROZEN** Account ($7,500)
-    - **105 (Edward)**: Active, with **FRAUD ALERT** ($4,200)
-    - **106 (Fiona)**: Active, Loan already in **SUBMITTED**
+    - **101 (Alice Walker, profile 1)**: ACTIVE, KYC approved, balance 15,000.00. Holds the seeded loan (35,000.00) in **SUBMITTED**
+    - **102 (Bob Vance, profile 2)**: ACTIVE, KYC approved, balance 8,500.00
+    - **103 (Charlie Pending, profile 3)**: ACTIVE, KYC **PENDING**, balance 2,500.00
+    - **104 (David Miller, profile 4)**: **FROZEN**, balance 12,000.00
+    - **105 (Eve Risk, profile 5)**: ACTIVE, KYC approved, balance 400.00, with an **OPEN** fraud alert
     
     **Trigger Test Scenarios:**
     - **Pass Transfer**: 101 -> 102 ($500) as `retail_customer`
     - **Block KYC**: 103 -> 102 ($200) as `retail_customer`
     - **Block Frozen**: 104 -> 102 ($200) as `retail_customer`
     - **Block Fraud**: 105 -> 102 ($200) as `retail_customer`
-    - **Block Loan Stacking**: Profile 106 ($25,000)
-    - **Loan Workflow**: Profile 106 as `senior_underwriter` -> `UNDERWRITE`, then `branch_manager` -> `APPROVED`
+    - **Block Loan Stacking**: Profile 1 ($25,000), which already has a SUBMITTED loan
+    - **Loan Workflow**: The seeded loan for profile 1 as `senior_underwriter` -> `UNDERWRITE`, then `branch_manager` -> `APPROVED`
     """)
 
 # -----------------------------------------------------------------------------
 # SIDEBAR DEVELOPER BIO & TEAM PROFILE
 # -----------------------------------------------------------------------------
-st.sidebar.markdown("---")
-st.sidebar.markdown("### Developer & Team Profile")
-st.sidebar.markdown("""
-<div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 1px solid #3730a3; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
-    <div style="display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; margin-bottom: 8px;">
-        DBMS PROJECT
-    </div>
-    <div style="color: #f8fafc; font-size: 16px; font-weight: 800;">M. Sakthi Sundar</div>
-    <div style="color: #a5b4fc; font-size: 12px; font-weight: 600; margin-top: 2px;">Reg No: 25BCE1244 &bull; Team MICHAEL</div>
-    <div style="color: #94a3b8; font-size: 12px;">B.Tech CSE &bull; <b>VIT Chennai</b></div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; font-size: 11px;">
-        Project Guide: <b style="color: #f8fafc;">Dr. Swaminathan A</b> <span style="color: #38bdf8;"></span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.sidebar.markdown("""
-<div style="display: flex; gap: 8px; margin-bottom: 8px;">
-    <a href="https://github.com/Sakthi-Sundar-M" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #24292e; color: #ffffff; padding: 8px 6px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #444d56;">
-        <svg height="14" width="14" viewBox="0 0 16 16" fill="#ffffff" style="margin-right: 6px;">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-        </svg>
-        GitHub
-    </a>
-    <a href="https://www.linkedin.com/in/sakthi-sundar-m-34345a267" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #0a66c2; color: #ffffff; padding: 8px 6px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #004182;">
-        <svg height="14" width="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-right: 6px;">
-            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28z"></path>
-        </svg>
-        LinkedIn
-    </a>
-</div>
-<div style="margin-bottom: 12px;">
-    <a href="https://github.com/Sakthi-Sundar-M/workout" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #1e293b; color: #38bdf8; padding: 7px 10px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #38bdf8;">
-        <svg height="13" width="13" viewBox="0 0 16 16" fill="#38bdf8" style="margin-right: 6px;">
-            <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8V1.5z"></path>
-        </svg>
-        GitHub Repository
-    </a>
-</div>
-""", unsafe_allow_html=True)
+render_sidebar_bio()
 
 with st.sidebar.expander("Project Architecture & Tech Stack", expanded=False):
     st.markdown("""
@@ -251,7 +108,6 @@ with st.sidebar.expander("Project Architecture & Tech Stack", expanded=False):
     - **RBAC Matrix:** Surgical table & column-level GRANT privileges across 6 roles.
     - **Trigger Engine:** 4 PL/pgSQL triggers with deterministic exception signatures.
     - **Observability:** Live Trace & Before/After State Diff Viewer.
-    - **Test Automation:** 12-scenario automated test suite (100% pass rate).
 
     **Core Tech Stack:**
     `PostgreSQL 16` &bull; `Neon Serverless` &bull; `PL/pgSQL` &bull; `Python 3.13` &bull; `Streamlit` &bull; `Graphviz` &bull; `psycopg2`
@@ -261,14 +117,64 @@ with st.sidebar.expander("Project Architecture & Tech Stack", expanded=False):
 # TOP NAVIGATION TABS (MULTI-PAGE FINTECH EXPERIENCE)
 # =============================================================================
 main_tabs = st.tabs([
-    "Banking Operations & Simulator",
-    "Trigger Code for Selected Operation",
-    "In-Engine Trigger Theory & Buffers",
-    "Role-Specific Execution Flowchart",
-    "Exam Lab & AI Evaluator"
+    "Run an operation",
+    "Access matrix",
+    "Trigger source",
+    "How triggers work",
+    "Execution flow",
+    "Exam lab"
 ])
 
-tab_simulator, tab_trigger_code, tab_eca_theory, tab_flowchart, tab_exam_lab = main_tabs
+tab_simulator, tab_access, tab_trigger_code, tab_eca_theory, tab_flowchart, tab_exam_lab = main_tabs
+
+# -----------------------------------------------------------------------------
+# REFERENCE TABLES (facts taken from sql/triggers/*.sql and sql/schema.sql)
+# -----------------------------------------------------------------------------
+TRIGGER_OVERVIEW = [
+    ("process_transaction", "BEFORE INSERT", "daily_transactions",
+     "Self-transfer, sender and receiver KYC, account status (frozen or closed), open fraud alerts, and sender balance. Then it updates both balances.",
+     ["TRANSACTION_SELF_BLOCKED", "KYC_CHECK_FAILED", "ACCOUNT_FROZEN_BLOCKED", "FRAUD_CHECK_FAILED", "INSUFFICIENT_FUNDS"]),
+    ("check_loan_eligibility", "BEFORE INSERT", "loan_applications",
+     "Applicant KYC, one active application at a time, and frozen or closed accounts. A new application starts as SUBMITTED.",
+     ["LOAN_KYC_FAILED", "LOAN_STACKING_BLOCKED", "LOAN_ACCOUNT_COMPROMISED"]),
+    ("enforce_loan_workflow", "BEFORE UPDATE", "loan_applications",
+     "Stage order (SUBMITTED, then UNDERWRITE, then APPROVED or REJECTED), no moving backwards, final states locked, and role checks for UNDERWRITE and APPROVED.",
+     ["WORKFLOW_STAGE_SKIPPED", "WORKFLOW_BACKWARD_TRANSITION", "WORKFLOW_TERMINAL_STATE", "WORKFLOW_UNAUTHORIZED_ACTOR"]),
+    ("log_audit_event", "AFTER UPDATE", "customer_accounts, loan_applications, fraud_alerts",
+     "Records the old and new values in audit_log. It never blocks a change.",
+     []),
+]
+
+def build_trigger_table_html(rows):
+    head = "<tr><th>Trigger</th><th>Runs</th><th>On table</th><th>What it checks</th><th>Error codes</th></tr>"
+    body = []
+    for name, when, table, checks, codes in rows:
+        code_html = " ".join(f"<code>{html.escape(c)}</code>" for c in codes) if codes else "None"
+        body.append(
+            f"<tr><td><code>{html.escape(name)}</code></td><td>{html.escape(when)}</td>"
+            f"<td>{html.escape(table)}</td><td>{html.escape(checks)}</td>"
+            f"<td class=\"tt-codes\">{code_html}</td></tr>"
+        )
+    return ('<div class="table-scroll"><table class="trigger-table"><thead>' + head +
+            '</thead><tbody>' + "".join(body) + '</tbody></table></div>')
+
+def build_access_matrix_html(queries, roles, permissions):
+    head_cells = "".join(f'<th scope="col">{html.escape(format_role_name(r))}</th>' for r in roles)
+    rows = []
+    for job, meta in queries.items():
+        cells = []
+        for r in roles:
+            allowed = permissions.get((r, job))
+            if allowed is None:
+                cells.append('<td class="am-unknown">Not loaded</td>')
+            elif allowed:
+                cells.append('<td class="am-yes">Allowed</td>')
+            else:
+                cells.append('<td class="am-no">Denied</td>')
+        detail = f"{meta.get('table', '')}, {meta.get('privilege', '')}"
+        rows.append(f'<tr><th scope="row">{html.escape(job)}<span class="am-table">{html.escape(detail)}</span></th>' + "".join(cells) + '</tr>')
+    return ('<div class="table-scroll"><table class="access-table"><thead><tr><th scope="col">Operation</th>' +
+            head_cells + '</tr></thead><tbody>' + "".join(rows) + '</tbody></table></div>')
 
 # Track active_role transitions to immediately invalidate stale results and synchronize widgets
 if st.session_state.get("previous_active_role") != active_role:
@@ -297,48 +203,31 @@ for job_name, job_details in QUERIES.items():
             job_details["privilege"], 
             tuple(job_details.get("columns", []))
         )
-    job_display_map[job_name] = f"{'✔️' if has_access else '❌'} {job_name}"
+    job_display_map[job_name] = job_name if has_access else f"{job_name}  (not permitted for this role)"
 
 # -----------------------------------------------------------------------------
 # TAB 1: BANKING OPERATIONS & SIMULATOR
 # -----------------------------------------------------------------------------
 with tab_simulator:
-    # Top KPI Metric Ribbon
-    kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
-    with kpi_col1:
-        st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Active Security Role</div>
-            <div class="kpi-value" style="color: #38bdf8;">{format_role_name(active_role)}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col2:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">PostgreSQL Catalogs</div>
-            <div class="kpi-value" style="color: #c084fc;">information_schema</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col3:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">PL/pgSQL Triggers</div>
-            <div class="kpi-value" style="color: #f59e0b;">4 In-Engine Firewalls</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col4:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">Verification Harness</div>
-            <div class="kpi-value" style="color: #10b981;">12/12 Tests Passing</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(
+        '<header class="section-head"><p class="eyebrow">Explore by yourself</p>'
+        '<h2>Run a database operation</h2>'
+        '<p class="section-lede">Pick an operation, fill in its inputs, and run it as the selected role. '
+        'The result shows which check decided the outcome.</p></header>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-    st.subheader("Simulate Database Operation")
+    st.markdown(f"""
+    <dl class="context-strip">
+        <div><dt>Active role</dt><dd>{format_role_name(active_role)}</dd></div>
+        <div><dt>Tables in schema</dt><dd>6 core tables</dd></div>
+        <div><dt>Trigger functions</dt><dd>4 PL/pgSQL functions</dd></div>
+        <div><dt>Where rules run</dt><dd>Inside PostgreSQL</dd></div>
+    </dl>
+    """, unsafe_allow_html=True)
 
     selected_job_key = st.selectbox(
-        "Select a Banking Operation to Test:", 
+        "Choose an operation to run", 
         options=list(QUERIES.keys()), 
         index=3 if len(QUERIES) > 3 else 0, 
         placeholder="-- Select a database action to test --", 
@@ -362,7 +251,7 @@ with tab_simulator:
             )
 
         if final_access_check:
-            st.success(f"✅ **RBAC Authorization Granted**: Role `{format_role_name(active_role)}` holds `{selected_job_details['privilege']}` privilege on `{selected_job_details['table']}`.")    
+            st.success(f"**Permission granted.** Role `{format_role_name(active_role)}` can {selected_job_details['privilege']} `{selected_job_details['table']}`.")    
             
             user_inputs = []
             if "inputs" in selected_job_details: 
@@ -383,7 +272,7 @@ with tab_simulator:
 
             col_btn1, col_btn2 = st.columns([1, 4])
             with col_btn1:
-                run_clicked = st.button("Run Operation", type="primary", use_container_width=True)
+                run_clicked = st.button("Run Operation", type="primary", width="stretch")
             with col_btn2:
                 show_query = st.checkbox("Show Raw SQL Query", value=False)
                 if show_query:
@@ -419,21 +308,21 @@ with tab_simulator:
                     st.markdown("### Database Output & Response")
                     if result["status"] == "success":
                         if selected_job_details["privilege"] == "SELECT":
-                            st.success("✅ Query executed successfully.")
+                            st.success("Query ran successfully.")
                         else:
-                            st.success("✅ Transaction committed to PostgreSQL.")
+                            st.success("Change committed to PostgreSQL.")
                         
                         if result.get("data") is not None:
                             if len(result["data"]) == 0:
                                 st.info("No records found in this table yet.")
                                 df = pd.DataFrame(columns=result.get("columns", []))
-                                st.dataframe(df, use_container_width=True)
+                                st.dataframe(df, width="stretch")
                             else:
                                 df = pd.DataFrame(result["data"], columns=result.get("columns", []))
-                                st.dataframe(df, use_container_width=True)
+                                st.dataframe(df, width="stretch")
 
                     elif result["status"] == "denied":
-                        st.error("Access Denied by PostgreSQL RBAC Engine")
+                        st.error("Blocked by permissions")
                         st.error(result.get("message", "Insufficient privileges."))
 
                     else:
@@ -442,7 +331,7 @@ with tab_simulator:
                             st.code(result.get("message", ""), language="text")
 
         else:
-            st.error(f"**Access Denied**: Active role `{format_role_name(active_role)}` does not hold `{selected_job_details['privilege']}` privilege on `{selected_job_details['table']}`.")
+            st.error(f"**Blocked by permissions.** Role `{format_role_name(active_role)}` does not have {selected_job_details['privilege']} on `{selected_job_details['table']}`, so PostgreSQL rejected the statement before reading any rows.")
             fake_denied = {
                 "status": "denied",
                 "message": f"Role {active_role} lacks {selected_job_details['privilege']} on {selected_job_details['table']}."
@@ -504,18 +393,14 @@ with tab_trigger_code:
         inspect_has_access = all_permissions.get((active_role, inspect_job), False)
         if inspect_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator\n"
-            sync_bg = "#064e3b"
-            sync_color = "#a7f3d0"
-            sync_border = "#10b981"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#1e293b"
-            sync_color = "#94a3b8"
-            sync_border = "#334155"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #10b981; font-weight: 700;'>✔️ Authorized</span>" if inspect_has_access else "<span style='color: #ef4444; font-weight: 700;'>❌ RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if inspect_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)
@@ -544,7 +429,7 @@ with tab_trigger_code:
                 ("Anti-Loan Stacking", "LOAN_STACKING_BLOCKED", "Customer already has an active loan application under review."),
                 ("Compromised Account", "LOAN_ACCOUNT_COMPROMISED", "Applicant holds at least one FROZEN or CLOSED account.")
             ],
-            "cascades": "Initializes candidate row state with approval_status := 'SUBMITTED'."
+            "cascades": "Initializes applicant status to SUBMITTED."
         },
         "Update Loan Status (UPDATE)": {
             "trigger_key": "enforce_loan_workflow",
@@ -610,19 +495,19 @@ with tab_trigger_code:
 
         # 1. Visual Summary Card
         st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #38bdf8; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div class="trigger-hero-card">
+            <div class="trigger-hero-header">
                 <div>
-                    <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px;">Directly Backing Selected Operation</span>
-                    <h3 style="margin: 4px 0 0 0; color: #f8fafc; font-size: 18px;"><code>{trigger_title}</code></h3>
+                    <span class="trigger-hero-label">Directly Backing Selected Operation</span>
+                    <h3 class="trigger-hero-title"><code>{trigger_title}</code></h3>
                 </div>
                 <div style="margin-top: 6px;">
-                    <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid #0284c7; color: #38bdf8; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                    <span class="trigger-timing-badge">
                         {trigger_timing}
                     </span>
                 </div>
             </div>
-            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-top: 8px;">
+            <div class="trigger-hero-summary">
                 {trigger_summary}
             </div>
         </div>
@@ -631,11 +516,11 @@ with tab_trigger_code:
         # 2. Role Context Banner
         role_hint = get_role_context_hint(active_role, active_trigger_key, inspect_job)
         st.markdown(f"""
-        <div style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px;">
-            <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div class="role-context-banner">
+            <span class="role-context-title">
                 Relevance to Active Role ({format_role_name(active_role)})
             </span>
-            <div style="font-size: 12px; color: #e2e8f0; margin-top: 3px; line-height: 1.4;">
+            <div class="role-context-desc">
                 {role_hint}
             </div>
         </div>
@@ -649,14 +534,14 @@ with tab_trigger_code:
             for idx, (flabel, ecode, edesc) in enumerate(trigger_exceptions):
                 with ex_cols[idx]:
                     st.markdown(f"""
-                    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; height: 100%;">
-                        <div style="font-size: 13px; font-weight: 700; color: #f8fafc;">{flabel}</div>
-                        <div style="margin-top: 4px;">
-                            <span style="font-size: 10px; font-weight: 700; color: #f87171; font-family: monospace; background: rgba(239, 68, 68, 0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <div class="firewall-card">
+                        <div class="firewall-title">{flabel}</div>
+                        <div>
+                            <span class="firewall-badge">
                                 {ecode}
                             </span>
                         </div>
-                        <div style="font-size: 11px; color: #cbd5e1; margin-top: 8px; line-height: 1.4;">
+                        <div class="firewall-desc">
                             {edesc}
                         </div>
                     </div>
@@ -673,28 +558,28 @@ with tab_trigger_code:
         if active_trigger_key == "process_transaction":
             st.info("**Try it in the Simulator (Tab 1):** Select Demo Account **103** (Pending KYC) or **104** (Frozen) to watch PostgreSQL reject the transfer in real-time with these exact error codes!")
         elif active_trigger_key == "check_loan_eligibility":
-            st.info("**Try it in the Simulator (Tab 1):** Submit a loan for Profile **104** (Frozen Account) or Profile **106** (Already has a pending loan) to see anti-stacking block the insertion!")
+            st.info("**Try it in the Simulator (Tab 1):** Submit a loan for Profile **1** (already has a SUBMITTED loan) to see the anti-stacking block, or Profile **4** (frozen account) to see the account-health block.")
         elif active_trigger_key == "enforce_loan_workflow":
             st.info("**Try it in the Simulator (Tab 1):** Switch between `senior_underwriter` and `branch_manager` to test workflow role authority and stage progression rules!")
     else:
         st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #334155; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div class="tier1-notice-card">
+            <div class="tier1-notice-header">
                 <div>
-                    <span style="font-size: 11px; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">
+                    <span class="tier1-notice-pretitle">
                         Architectural Classification: Tier-1 RBAC Governed
                     </span>
-                    <h3 style="margin: 4px 0 0 0; color: #f8fafc; font-size: 18px;">
+                    <h3 class="tier1-notice-title">
                         No Procedural Trigger Attached to <code>{inspect_job}</code>
                     </h3>
                 </div>
                 <div style="margin-top: 6px;">
-                    <span style="background: rgba(245, 158, 11, 0.15); border: 1px solid #d97706; color: #fbbf24; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
+                    <span class="tier1-badge">
                         DIRECT POSTGRESQL ENGINE QUERY
                     </span>
                 </div>
             </div>
-            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.6; margin-top: 12px;">
+            <div class="tier1-notice-content">
                 <b>Why doesn't this operation attach a procedural trigger?</b><br>
                 In PostgreSQL and ANSI SQL relational database standards, <b>procedural triggers execute exclusively on row modification events (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>)</b>.
                 <ul style="margin: 8px 0 4px 0; padding-left: 20px;">
@@ -753,11 +638,17 @@ with tab_trigger_code:
 # TAB 3 (TAB A): IN-ENGINE TRIGGER THEORY & BUFFERS (ECA MODEL)
 # -----------------------------------------------------------------------------
 with tab_eca_theory:
+    st.markdown("### The four triggers")
+    st.markdown("Triggers run inside PostgreSQL. A check that fails raises its error code, which stops the statement and rolls back its changes.")
+    st.markdown(build_trigger_table_html(TRIGGER_OVERVIEW), unsafe_allow_html=True)
+    st.markdown("### Defense in depth")
+    render_defense_depth_grid()
+
     all_job_keys = list(QUERIES.keys())
     current_sim_job = st.session_state.get("current_selected_operation", all_job_keys[3] if len(all_job_keys) > 3 else all_job_keys[0])
     default_tab3_idx = all_job_keys.index(current_sim_job) if current_sim_job in all_job_keys else 0
 
-    st.markdown("### In-Engine Trigger Theory & Memory Buffers (ECA Model)")
+    st.markdown("### Inspect one operation: triggers and memory buffers")
 
     t3_col1, t3_col2 = st.columns([3, 1])
     with t3_col1:
@@ -773,18 +664,14 @@ with tab_eca_theory:
         dissect_has_access = all_permissions.get((active_role, dissect_job), False)
         if dissect_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator"
-            sync_bg = "#064e3b"
-            sync_color = "#a7f3d0"
-            sync_border = "#10b981"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#1e293b"
-            sync_color = "#94a3b8"
-            sync_border = "#334155"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #10b981; font-weight: 700;'>✔️ Authorized</span>" if dissect_has_access else "<span style='color: #ef4444; font-weight: 700;'>❌ RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if dissect_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)
@@ -826,18 +713,14 @@ with tab_flowchart:
         flow_has_access = all_permissions.get((active_role, flow_job), False)
         if flow_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator"
-            sync_bg = "#064e3b"
-            sync_color = "#a7f3d0"
-            sync_border = "#10b981"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#1e293b"
-            sync_color = "#94a3b8"
-            sync_border = "#334155"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #10b981; font-weight: 700;'>✔️ Authorized</span>" if flow_has_access else "<span style='color: #ef4444; font-weight: 700;'>❌ RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if flow_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)
@@ -857,36 +740,20 @@ with tab_flowchart:
 
     st.markdown("---")
     st.markdown("#### How PostgreSQL Executes This Operation (3-Tier Defense-in-Depth)")
-    st.markdown("""
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 8px;">
-        <div style="background: #111827; border: 1px solid #1f2937; border-top: 3px solid #c084fc; border-radius: 8px; padding: 14px 16px;">
-            <div style="font-size: 11px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px;">Tier 1: Access Check</div>
-            <div style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-top: 3px;">PostgreSQL RBAC Catalog</div>
-            <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
-                Checks role privileges in <code>information_schema</code>. Unauthorized queries are halted immediately with 403 <code>InsufficientPrivilege</code> without reading or writing disk rows.
-            </div>
-        </div>
-        <div style="background: #111827; border: 1px solid #1f2937; border-top: 3px solid #38bdf8; border-radius: 8px; padding: 14px 16px;">
-            <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">Tier 2: Business Firewalls</div>
-            <div style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-top: 3px;">In-Engine PL/pgSQL Triggers</div>
-            <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
-                Intercepts writes in memory before commitment (<code>NEW</code> buffer). Checks KYC, account freeze status, fraud alerts, anti-stacking, and workflow permissions.
-            </div>
-        </div>
-        <div style="background: #111827; border: 1px solid #1f2937; border-top: 3px solid #10b981; border-radius: 8px; padding: 14px 16px;">
-            <div style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">Tier 3: Guarantee</div>
-            <div style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-top: 3px;">ACID Atomicity & Audit</div>
-            <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
-                Rule violation calls <code>RAISE EXCEPTION</code> triggering an automatic <code>ROLLBACK</code> (zero corrupted balances). Success commits to disk and cascades to tamper-proof <code>audit_log</code>.
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
 
 
 # -----------------------------------------------------------------------------
 # TAB 5: AI-POWERED PRACTICE LAB & EXAM EVALUATOR
 # -----------------------------------------------------------------------------
+with tab_access:
+    st.markdown("### Access matrix")
+    st.markdown("Each cell is read from the connected PostgreSQL database with `has_table_privilege` or `has_column_privilege`, so it shows the grants that are actually in place.")
+    if all_permissions:
+        st.markdown(build_access_matrix_html(QUERIES, DEPARTMENTS[selected_dept]["roles"], all_permissions), unsafe_allow_html=True)
+    else:
+        st.info("Connect to PostgreSQL to load the grid. Without a connection there are no grants to read.")
+
 with tab_exam_lab:
     render_exam_lab_tab(active_role=active_role)
 
+st.markdown('<p class="site-footer">Six core tables, four PL/pgSQL trigger functions. Schema and triggers live in the sql/ folder.</p>', unsafe_allow_html=True)

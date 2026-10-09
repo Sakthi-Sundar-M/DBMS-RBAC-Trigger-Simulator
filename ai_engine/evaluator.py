@@ -157,10 +157,10 @@ def evaluate_concept_scores(student_text: str, key_concepts: List[str], model=No
             w for w in re.split(r"[^a-zA-Z0-9_]+", concept.lower())
             if len(w) > 2 and w not in {"the", "and", "for", "with", "that", "this", "are", "can", "when"}
         ]
-        matched_terms = [w for w in concept_terms if w in cleaned_lower]
+        matched_terms = [w for w in concept_terms if re.search(r"\b" + re.escape(w) + r"\b", cleaned_lower)]
         kw_ratio = len(matched_terms) / len(concept_terms) if concept_terms else 0.0
 
-        is_present = (sem_sim >= 0.60) or (sem_sim >= 0.50 and kw_ratio >= 0.40) or (kw_ratio >= 0.65 and len(matched_terms) >= 2)
+        is_present = (sem_sim >= 0.60) or (sem_sim >= 0.50 and kw_ratio >= 0.40) or (kw_ratio >= 0.50 and len(matched_terms) >= 2)
 
         if is_present:
             if sem_sim >= 0.75:
@@ -170,7 +170,7 @@ def evaluate_concept_scores(student_text: str, key_concepts: List[str], model=No
             elif sem_sim >= 0.50:
                 c_score = 0.75 + (sem_sim - 0.50) * 1.50
             else:
-                c_score = max(0.70, kw_ratio)
+                c_score = max(0.85, kw_ratio)
             present.append(concept)
         else:
             if sem_sim >= 0.40:

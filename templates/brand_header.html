@@ -1,0 +1,17 @@
+<div class="intro">
+<div class="intro-bar"><span class="status-dot {{ status_class }}"></span><span>{{ status_text }}</span><span class="intro-note">Enforcement lives in the database, not in the app</span></div>
+<div class="intro-grid">
+<div>
+<p class="eyebrow">Learn &middot; Simulate &middot; Visualize</p>
+<h1 class="intro-title"><span class="line">Database RBAC Simulator</span><span class="line"><span class="amp">&amp;</span> Trigger Visualizer</span></h1>
+<p class="intro-lede">Run the same statement as different PostgreSQL roles and see which layer decides its outcome: the grant check, a BEFORE trigger, or the commit.</p>
+</div>
+<aside class="intro-aside"><p>Same SQL. Different roles. See exactly where it&rsquo;s blocked.</p></aside>
+</div>
+<ol class="stages">
+<li class="stage is-block"><span class="stage-num">01</span><h3 class="stage-name">Grant check</h3><p class="stage-body">The role&rsquo;s GRANTs decide whether the statement may touch the table. A denied statement never reaches a row.</p><span class="stage-tag">Can block</span></li>
+<li class="stage is-block"><span class="stage-num">02</span><h3 class="stage-name">BEFORE trigger</h3><p class="stage-body">Business rules run inside the database on the incoming row. A RAISE EXCEPTION aborts the statement.</p><span class="stage-tag">Can block</span></li>
+<li class="stage is-final"><span class="stage-num">03</span><h3 class="stage-name">Commit</h3><p class="stage-body">Row and balance changes commit together, or not at all.</p><span class="stage-tag">Final state</span></li>
+<li class="stage is-record"><span class="stage-num">04</span><h3 class="stage-name">AFTER trigger</h3><p class="stage-body">log_audit_event() writes the old and new values to audit_log.</p><span class="stage-tag">Records the change</span></li>
+</ol>
+</div>
