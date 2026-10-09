@@ -80,16 +80,16 @@ def render_exam_lab_tab(active_role="retail_customer"):
     <div class="exam-question-card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
-                <span style="font-size: 11px; font-weight: 700; color: #A8322A; text-transform: none; ">
+                <span style="font-size: 11px; font-weight: 700; color: #F0786B; text-transform: none; ">
                     {current_q.get('topic')} &bull; {current_q.get('subtopic')}
                 </span>
-                <h3 style="margin: 4px 0 0 0; color: #16191D; font-size: 18px;">
+                <h3 style="margin: 4px 0 0 0; color: #ECEEF2; font-size: 18px;">
                     {current_q.get('title')}
                 </h3>
             </div>
             <div style="margin-top: 4px;">
                 {diff_badge} &nbsp;
-                <span style="background: #ECEBE5; border: 1px solid #B3B1A6; color: #2E6B5E; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                <span style="background: #171C26; border: 1px solid #353D4B; color: #5BD3AE; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                     Source: {current_q.get('source')}
                 </span>
             </div>
@@ -160,8 +160,8 @@ def render_exam_lab_tab(active_role="retail_customer"):
         htitle, htext = st.session_state[hint_state_key]
         st.markdown(f"""
         <div class="exam-hint-box">
-            <div style="font-size: 11px; font-weight: 700; color: #A8322A; text-transform: none;">{htitle}</div>
-            <div style="color: #4B525B; font-size: 13px; margin-top: 4px; line-height: 1.5;">{htext}</div>
+            <div style="font-size: 11px; font-weight: 700; color: #F0786B; text-transform: none;">{htitle}</div>
+            <div style="color: #AEB5C0; font-size: 13px; margin-top: 4px; line-height: 1.5;">{htext}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -181,11 +181,11 @@ def render_exam_lab_tab(active_role="retail_customer"):
 
         st.markdown(f"""
         <div class="exam-challenge-box">
-            <div style="font-size: 11px; font-weight: 700; color: #4B525B; text-transform: none;">
+            <div style="font-size: 11px; font-weight: 700; color: #AEB5C0; text-transform: none;">
                 Practice variant (Adapting '{current_q.get('title')}')
             </div>
-            <div style="color: #4B525B; font-size: 12px; margin-top: 4px;">
-                Department: <b style="color: #16191D;">{iso_data.get('domain')}</b> &bull; Scenario: <b style="color: #16191D;">{iso_data.get('scenario_title')}</b> (Variation {current_var_idx + 1} of {total_vars})
+            <div style="color: #AEB5C0; font-size: 12px; margin-top: 4px;">
+                Department: <b style="color: #ECEEF2;">{iso_data.get('domain')}</b> &bull; Scenario: <b style="color: #ECEEF2;">{iso_data.get('scenario_title')}</b> (Variation {current_var_idx + 1} of {total_vars})
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -214,7 +214,7 @@ def render_exam_lab_tab(active_role="retail_customer"):
 
         if iso_data.get("ai_generated_content"):
             st.markdown(f"""
-            <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-radius: 6px; padding: 14px 18px; margin-bottom: 12px; color: #16191D; font-size: 13px; line-height: 1.5;">
+            <div style="background: #171C26; border: 1px solid #353D4B; border-radius: 6px; padding: 14px 18px; margin-bottom: 12px; color: #ECEEF2; font-size: 13px; line-height: 1.5;">
 {iso_data['ai_generated_content']}
             </div>
             """, unsafe_allow_html=True)
@@ -242,7 +242,7 @@ def render_exam_lab_tab(active_role="retail_customer"):
 
         # Dedicated Interactive Workspace for Isomorphic Variant (Option A)
         st.markdown("""
-        <div style="font-size: 11px; font-weight: 700; color: #4B525B; text-transform: none;  margin-top: 14px; margin-bottom: 4px;">
+        <div style="font-size: 11px; font-weight: 700; color: #AEB5C0; text-transform: none;  margin-top: 14px; margin-bottom: 4px;">
             Variant PL/pgSQL & SQL Execution Buffer
         </div>
         """, unsafe_allow_html=True)
@@ -303,25 +303,25 @@ def render_exam_lab_tab(active_role="retail_customer"):
             missing_html = "".join([f"<li style='color: #F1A896; margin: 2px 0;'>✕ {c}</li>" for c in v_missing]) if v_missing else "<li style='color: #A9D8BC;'>All key invariants verified!</li>"
 
             st.markdown(f"""
-            <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-left: 4px solid {badge_color}; border-radius: 6px; padding: 12px 16px; margin: 10px 0;">
+            <div style="background: #171C26; border: 1px solid #353D4B; border-left: 4px solid {badge_color}; border-radius: 6px; padding: 12px 16px; margin: 10px 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <span style="font-size: 11px; font-weight: 700; color: {badge_color}; text-transform: none;">
                         Variant Evaluation &bull; {v_band}
                     </span>
-                    <span style="font-size: 13px; font-weight: 800; color: #16191D; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">
+                    <span style="font-size: 13px; font-weight: 800; color: #ECEEF2; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">
                         {v_score}% Match
                     </span>
                 </div>
-                <div style="color: #4B525B; font-size: 12.5px; line-height: 1.4; margin-bottom: 8px;">
+                <div style="color: #AEB5C0; font-size: 12.5px; line-height: 1.4; margin-bottom: 8px;">
                     {v_feedback}
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
                     <div>
-                        <div style="font-weight: 700; color: #2E6B5E; margin-bottom: 2px;">Verified Invariants:</div>
+                        <div style="font-weight: 700; color: #5BD3AE; margin-bottom: 2px;">Verified Invariants:</div>
                         <ul style="margin: 0 0 0 16px; padding: 0;">{passed_html}</ul>
                     </div>
                     <div>
-                        <div style="font-weight: 700; color: #A8322A; margin-bottom: 2px;">Missing Invariants:</div>
+                        <div style="font-weight: 700; color: #F0786B; margin-bottom: 2px;">Missing Invariants:</div>
                         <ul style="margin: 0 0 0 16px; padding: 0;">{missing_html}</ul>
                     </div>
                 </div>
@@ -355,11 +355,11 @@ def render_exam_lab_tab(active_role="retail_customer"):
             formatted_diagnosis = f"<div style='line-height: 1.35; color: #D9E1DE;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
 
         st.markdown(f"""
-        <div style="background: #ECEBE5; border: 1px solid #B3B1A6; border-left: 4px solid #86C5A0; border-radius: 8px; padding: 14px 18px; margin-top: 14px;">
-            <div style="font-size: 11px; font-weight: 700; color: #2E6B5E; text-transform: none;  margin-bottom: 6px;">
+        <div style="background: #171C26; border: 1px solid #353D4B; border-left: 4px solid #86C5A0; border-radius: 8px; padding: 14px 18px; margin-top: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: #5BD3AE; text-transform: none;  margin-bottom: 6px;">
                 Socratic Professor Feedback & Diagnostic Analysis
             </div>
-            <div style="color: #4B525B; font-size: 13px; line-height: 1.35;">
+            <div style="color: #AEB5C0; font-size: 13px; line-height: 1.35;">
                 {formatted_diagnosis}
             </div>
         </div>

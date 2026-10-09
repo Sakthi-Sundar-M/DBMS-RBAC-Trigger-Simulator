@@ -209,40 +209,22 @@ for job_name, job_details in QUERIES.items():
 # TAB 1: BANKING OPERATIONS & SIMULATOR
 # -----------------------------------------------------------------------------
 with tab_simulator:
-    # Top KPI Metric Ribbon
-    kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
-    with kpi_col1:
-        st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-title">Active role</div>
-            <div class="kpi-value">{format_role_name(active_role)}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col2:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">Tables in schema</div>
-            <div class="kpi-value">6 core tables</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col3:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">Trigger functions</div>
-            <div class="kpi-value">4 PL/pgSQL functions</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with kpi_col4:
-        st.markdown("""
-        <div class="kpi-card">
-            <div class="kpi-title">Where rules run</div>
-            <div class="kpi-value">Inside PostgreSQL</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(
+        '<header class="section-head"><p class="eyebrow">Explore by yourself</p>'
+        '<h2>Run a database operation</h2>'
+        '<p class="section-lede">Pick an operation, fill in its inputs, and run it as the selected role. '
+        'The result shows which check decided the outcome.</p></header>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
-    st.subheader("Run a database operation")
-    st.markdown("Pick an operation, fill in its inputs, and run it as the selected role. The result shows which check decided the outcome.")
+    st.markdown(f"""
+    <dl class="context-strip">
+        <div><dt>Active role</dt><dd>{format_role_name(active_role)}</dd></div>
+        <div><dt>Tables in schema</dt><dd>6 core tables</dd></div>
+        <div><dt>Trigger functions</dt><dd>4 PL/pgSQL functions</dd></div>
+        <div><dt>Where rules run</dt><dd>Inside PostgreSQL</dd></div>
+    </dl>
+    """, unsafe_allow_html=True)
 
     selected_job_key = st.selectbox(
         "Choose an operation to run", 
@@ -411,18 +393,14 @@ with tab_trigger_code:
         inspect_has_access = all_permissions.get((active_role, inspect_job), False)
         if inspect_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator\n"
-            sync_bg = "#E4EFEB"
-            sync_color = "#2E6B5E"
-            sync_border = "#2E6B5E"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#ECEBE5"
-            sync_color = "#4B525B"
-            sync_border = "#B3B1A6"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Authorized</span>" if inspect_has_access else "<span style='color: #A8322A; font-weight: 700;'>RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if inspect_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)
@@ -686,18 +664,14 @@ with tab_eca_theory:
         dissect_has_access = all_permissions.get((active_role, dissect_job), False)
         if dissect_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator"
-            sync_bg = "#E4EFEB"
-            sync_color = "#2E6B5E"
-            sync_border = "#2E6B5E"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#ECEBE5"
-            sync_color = "#4B525B"
-            sync_border = "#B3B1A6"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Authorized</span>" if dissect_has_access else "<span style='color: #A8322A; font-weight: 700;'>RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if dissect_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)
@@ -739,18 +713,14 @@ with tab_flowchart:
         flow_has_access = all_permissions.get((active_role, flow_job), False)
         if flow_job == st.session_state.get("current_selected_operation"):
             sync_badge = "🔄 Synced with Simulator"
-            sync_bg = "#E4EFEB"
-            sync_color = "#2E6B5E"
-            sync_border = "#2E6B5E"
+            sync_class = "is-synced"
         else:
             sync_badge = "Free Inspection"
-            sync_bg = "#ECEBE5"
-            sync_color = "#4B525B"
-            sync_border = "#B3B1A6"
+            sync_class = "is-free"
 
-        role_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Authorized</span>" if flow_has_access else "<span style='color: #A8322A; font-weight: 700;'>RBAC Denied</span>"
+        role_badge = "<span class='rbac-ok'>Authorized</span>" if flow_has_access else "<span class='rbac-deny'>RBAC Denied</span>"
         st.markdown(f"""
-        <div style='background: {sync_bg}; color: {sync_color}; border: 1px solid {sync_border}; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; text-align: center;'>
+        <div class='sync-pill {sync_class}'>
             {sync_badge} &bull; {role_badge}
         </div>
         """, unsafe_allow_html=True)

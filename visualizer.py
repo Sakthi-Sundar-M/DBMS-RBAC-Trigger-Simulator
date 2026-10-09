@@ -432,8 +432,8 @@ def render_diff_viewer(before_snapshot, after_snapshot, job_name, result):
                     f'</div>'
                     f'<div class="diff-card-body">'
                     f'<div><span class="diff-card-type">Amount: </span>'
-                    f'<span class="diff-card-balance" style="color: #16191D; font-size: 15px;">${loan.get("requested_amount", 0.0):,.2f}</span></div>'
-                    f'<span class="diff-status-badge" style="background: #F4ECDD; color: #A8322A;">{loan.get("approval_status")}</span>'
+                    f'<span class="diff-card-balance" style="color: #ECEEF2; font-size: 15px;">${loan.get("requested_amount", 0.0):,.2f}</span></div>'
+                    f'<span class="diff-status-badge" style="background: #352812; color: #F0786B;">{loan.get("approval_status")}</span>'
                     f'</div></div>'
                 )
                 st.html(card)
@@ -460,13 +460,13 @@ def render_diff_viewer(before_snapshot, after_snapshot, job_name, result):
                     diff_html = ""
                     if abs(diff) > 0.001:
                         if diff > 0:
-                            diff_html = f'<span style="color: #2E6B5E; font-size: 13px; font-weight: 700; margin-left: 6px;">(+${diff:,.2f})</span>'
+                            diff_html = f'<span style="color: #5BD3AE; font-size: 13px; font-weight: 700; margin-left: 6px;">(+${diff:,.2f})</span>'
                         else:
-                            diff_html = f'<span style="color: #A8322A; font-size: 13px; font-weight: 700; margin-left: 6px;">(-${abs(diff):,.2f})</span>'
+                            diff_html = f'<span style="color: #F0786B; font-size: 13px; font-weight: 700; margin-left: 6px;">(-${abs(diff):,.2f})</span>'
 
                     status_diff = ""
                     if old_acc.get("status") != acc.get("status"):
-                        status_diff = f'<span class="diff-status-badge" style="color: #A8322A; background: #F4ECDD;">{acc.get("status")}</span>'
+                        status_diff = f'<span class="diff-status-badge" style="color: #F0786B; background: #352812;">{acc.get("status")}</span>'
                     else:
                         status_diff = f'<span class="diff-status-badge">{acc.get("status")}</span>'
 
@@ -474,7 +474,7 @@ def render_diff_viewer(before_snapshot, after_snapshot, job_name, result):
                         f'<div class="diff-card updated">'
                         f'<div class="diff-card-header">'
                         f'<span class="diff-card-title">Account #{acc_id}</span>'
-                        f'<span style="color: #2E6B5E; font-size: 12px; font-weight: 600;">Updated</span>'
+                        f'<span style="color: #5BD3AE; font-size: 12px; font-weight: 600;">Updated</span>'
                         f'</div>'
                         f'<div class="diff-card-body">'
                         f'<div><span class="diff-card-type">Balance: </span>'
@@ -495,13 +495,13 @@ def render_diff_viewer(before_snapshot, after_snapshot, job_name, result):
                         f'<div class="diff-card updated">'
                         f'<div class="diff-card-header">'
                         f'<span class="diff-card-title">Loan #{loan_id} (Profile #{loan.get("profile_id")})</span>'
-                        f'<span style="color: #2E6B5E; font-size: 12px; font-weight: 600;">State Advanced</span>'
+                        f'<span style="color: #5BD3AE; font-size: 12px; font-weight: 600;">State Advanced</span>'
                         f'</div>'
                         f'<div class="diff-card-body">'
                         f'<div><span class="diff-card-type">Amount: </span>'
-                        f'<span class="diff-card-balance" style="color: #16191D; font-size: 15px;">${loan.get("requested_amount", 0.0):,.2f}</span></div>'
-                        f'<div><span style="color: #2E6B5E; font-size: 11px; text-decoration: line-through; margin-right: 4px;">{old_status}</span>'
-                        f'<span class="diff-status-badge" style="background: #E4EFEB;">{new_status}</span></div>'
+                        f'<span class="diff-card-balance" style="color: #ECEEF2; font-size: 15px;">${loan.get("requested_amount", 0.0):,.2f}</span></div>'
+                        f'<div><span style="color: #5BD3AE; font-size: 11px; text-decoration: line-through; margin-right: 4px;">{old_status}</span>'
+                        f'<span class="diff-status-badge" style="background: #12302A;">{new_status}</span></div>'
                         f'</div></div>'
                     )
                     st.html(card)
@@ -566,12 +566,12 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#A8322A", fontcolor="#A8322A"]
+            edge [color="#F0786B", fontcolor="#F0786B"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#FBFAF7", fontcolor="#16191D", color="#8B9097"]
-            blocked [label="Access denied\\n(SQLSTATE 42501)", shape=box, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#A8322A"]
-            abort [label="Transaction Aborted\\nZero DB Mutation", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#7C9393"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#12161E", fontcolor="#ECEEF2", color="#8B9097"]
+            blocked [label="Access denied\\n(SQLSTATE 42501)", shape=box, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#F0786B"]
+            abort [label="Transaction Aborted\\nZero DB Mutation", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#7C9393"]
 
             role -> rbac [label="Dispatches {verb}"]
             rbac -> blocked [label="No GRANT"]
@@ -584,16 +584,16 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#2E6B5E", fontcolor="#2E6B5E"]
+            edge [color="#5BD3AE", fontcolor="#5BD3AE"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            tbl [label="daily_transactions\\n(Memory Buffer)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            trigger [label="BEFORE Trigger:\\nprocess_transaction()", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#6F94A6"]
-            checks [label="In-Engine Verification:\\nKYC | Health | Fraud | Balance", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#A8322A"]
-            mutation [label="Atomic In-Engine Mutation:\\nDebit Sender & Credit Receiver", shape=cylinder, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            audit [label="AFTER Trigger:\\nlog_audit_event()", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#8B9097"]
-            commit [label="ACID Commit\\n(Synced to Disk)", shape=ellipse, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            tbl [label="daily_transactions\\n(Memory Buffer)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            trigger [label="BEFORE Trigger:\\nprocess_transaction()", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#6F94A6"]
+            checks [label="In-Engine Verification:\\nKYC | Health | Fraud | Balance", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#F0786B"]
+            mutation [label="Atomic In-Engine Mutation:\\nDebit Sender & Credit Receiver", shape=cylinder, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            audit [label="AFTER Trigger:\\nlog_audit_event()", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#8B9097"]
+            commit [label="ACID Commit\\n(Synced to Disk)", shape=ellipse, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
 
             role -> rbac [label="Dispatches INSERT"]
             rbac -> tbl [label="Allowed"]
@@ -610,15 +610,15 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#2E6B5E", fontcolor="#2E6B5E"]
+            edge [color="#5BD3AE", fontcolor="#5BD3AE"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            tbl [label="loan_applications\\n(Memory Buffer)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            trigger [label="BEFORE Trigger:\\ncheck_loan_eligibility()", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#6F94A6"]
-            checks [label="Eligibility Rules:\\nKYC | Anti-Stacking | Health", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#A8322A"]
-            registered [label="Registered State:\\napproval_status := SUBMITTED", shape=cylinder, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            commit [label="ACID Commit", shape=ellipse, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            tbl [label="loan_applications\\n(Memory Buffer)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            trigger [label="BEFORE Trigger:\\ncheck_loan_eligibility()", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#6F94A6"]
+            checks [label="Eligibility Rules:\\nKYC | Anti-Stacking | Health", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#F0786B"]
+            registered [label="Registered State:\\napproval_status := SUBMITTED", shape=cylinder, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            commit [label="ACID Commit", shape=ellipse, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
 
             role -> rbac [label="Dispatches INSERT"]
             rbac -> tbl [label="Allowed"]
@@ -634,15 +634,15 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#2E6B5E", fontcolor="#2E6B5E"]
+            edge [color="#5BD3AE", fontcolor="#5BD3AE"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            tbl [label="loan_applications\\n(Memory Buffer)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            trigger [label="BEFORE Trigger:\\nenforce_loan_workflow()", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#6F94A6"]
-            state [label="State Machine Guard:\\nSUBMITTED -> UNDERWRITE -> APPROVED", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#A8322A"]
-            audit [label="AFTER Trigger:\\nlog_audit_event()", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#8B9097"]
-            commit [label="ACID Commit", shape=ellipse, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Check\\n(Granted)", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            tbl [label="loan_applications\\n(Memory Buffer)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            trigger [label="BEFORE Trigger:\\nenforce_loan_workflow()", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#6F94A6"]
+            state [label="State Machine Guard:\\nSUBMITTED -> UNDERWRITE -> APPROVED", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#F0786B"]
+            audit [label="AFTER Trigger:\\nlog_audit_event()", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#8B9097"]
+            commit [label="ACID Commit", shape=ellipse, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
 
             role -> rbac [label="Dispatches UPDATE"]
             rbac -> tbl [label="Allowed"]
@@ -658,13 +658,13 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#2E6B5E", fontcolor="#2E6B5E"]
+            edge [color="#5BD3AE", fontcolor="#5BD3AE"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            engine [label="PostgreSQL Query Engine\\n(Cost-Based Optimizer)", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#6F94A6"]
-            pool [label="Shared Buffer Pool\\n(Direct Tuple Scan)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            client [label="Client Result Set\\n(Zero Trigger Mutation)", shape=ellipse, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            engine [label="PostgreSQL Query Engine\\n(Cost-Based Optimizer)", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#6F94A6"]
+            pool [label="Shared Buffer Pool\\n(Direct Tuple Scan)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            client [label="Client Result Set\\n(Zero Trigger Mutation)", shape=ellipse, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
 
             role -> rbac [label="Dispatches SELECT"]
             rbac -> engine [label="GRANT SELECT Verified"]
@@ -678,13 +678,13 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_graph_attr}
             {common_node_attr}
             {common_edge_attr}
-            edge [color="#2E6B5E", fontcolor="#2E6B5E"]
+            edge [color="#5BD3AE", fontcolor="#5BD3AE"]
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            tbl [label="Target Table\\n(Disk/Buffer)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            audit [label="AFTER Trigger:\\nlog_audit_event() [If Mutation]", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#8B9097"]
-            commit [label="ACID Complete", shape=ellipse, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Engine\\n(System Catalog)", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            tbl [label="Target Table\\n(Disk/Buffer)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            audit [label="AFTER Trigger:\\nlog_audit_event() [If Mutation]", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#8B9097"]
+            commit [label="ACID Complete", shape=ellipse, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
 
             role -> rbac [label="Dispatches {verb}"]
             rbac -> tbl [label="Granted"]
@@ -699,18 +699,18 @@ def render_graphviz_flowchart(role, action_name, status):
             {common_node_attr}
             {common_edge_attr}
 
-            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#B8975A"]
-            rbac [label="RBAC Engine", shape=diamond, fillcolor="#E4EFEB", fontcolor="#2E6B5E", color="#2E6B5E"]
-            tbl [label="Target Table\\n(Uncommitted Buffer)", shape=cylinder, fillcolor="#FBFAF7", fontcolor="#16191D", color="#5F8799"]
-            trigger [label="BEFORE Trigger\\nExecution", shape=box, fillcolor="#FBFAF7", fontcolor="#16191D", color="#6F94A6"]
-            violate [label="RAISE EXCEPTION\\n(Constraint Violated)", shape=box, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#A8322A"]
-            rollback [label="Kernel ROLLBACK\\nZero DB Mutation", shape=box, fillcolor="#F5E6E4", fontcolor="#A8322A", color="#A8322A"]
+            role [label="Role: {clean_role}", shape=ellipse, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#B8975A"]
+            rbac [label="RBAC Engine", shape=diamond, fillcolor="#12302A", fontcolor="#5BD3AE", color="#5BD3AE"]
+            tbl [label="Target Table\\n(Uncommitted Buffer)", shape=cylinder, fillcolor="#12161E", fontcolor="#ECEEF2", color="#5F8799"]
+            trigger [label="BEFORE Trigger\\nExecution", shape=box, fillcolor="#12161E", fontcolor="#ECEEF2", color="#6F94A6"]
+            violate [label="RAISE EXCEPTION\\n(Constraint Violated)", shape=box, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#F0786B"]
+            rollback [label="Kernel ROLLBACK\\nZero DB Mutation", shape=box, fillcolor="#3A1C1A", fontcolor="#F0786B", color="#F0786B"]
 
-            role -> rbac [label="Allowed", color="#2E6B5E", fontcolor="#2E6B5E"]
-            rbac -> tbl [label="Dispatched", color="#2E6B5E", fontcolor="#2E6B5E"]
-            tbl -> trigger [label="Intercepted", color="#2E6B5E", fontcolor="#2E6B5E"]
-            trigger -> violate [label="Check Failed", color="#A8322A", fontcolor="#A8322A"]
-            violate -> rollback [label="Automatic Rollback", color="#A8322A", fontcolor="#A8322A"]
+            role -> rbac [label="Allowed", color="#5BD3AE", fontcolor="#5BD3AE"]
+            rbac -> tbl [label="Dispatched", color="#5BD3AE", fontcolor="#5BD3AE"]
+            tbl -> trigger [label="Intercepted", color="#5BD3AE", fontcolor="#5BD3AE"]
+            trigger -> violate [label="Check Failed", color="#F0786B", fontcolor="#F0786B"]
+            violate -> rollback [label="Automatic Rollback", color="#F0786B", fontcolor="#F0786B"]
         }}
         """
     st.graphviz_chart(dot_code, width="stretch")
@@ -769,7 +769,7 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
             ("3. Defense Boundary", "Execution stopped at Tier 1 before triggers or memory buffers are created")
         ]
         action_desc = f"PostgreSQL kernel raised exception 42501 (insufficient_privilege). 0 bytes allocated in RAM, 0 disk I/O, zero state mutations."
-        action_badge = "<span style='color: #A8322A; font-weight: 700;'>Access denied</span>"
+        action_badge = "<span style='color: #F0786B; font-weight: 700;'>Access denied</span>"
 
     elif "Transaction" in job_key and "INSERT" in job_key:
         active_trigger_key = "process_transaction"
@@ -787,11 +787,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Atomic balance adjustment committed (Debit sender, Credit receiver); cascaded AFTER trigger to audit_log."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Transaction committed</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Transaction committed</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Constraint Violated") if result else "Constraint Violated"
             action_desc = f"RAISE EXCEPTION executed ({clean_err}); entire transfer aborted via automatic ROLLBACK."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Transaction aborted</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Transaction aborted</span>"
         else:
             action_desc = "Ready for execution dispatch to PostgreSQL."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -812,11 +812,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Loan application inserted in SUBMITTED state for underwriter review."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Loan registered</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Loan registered</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Eligibility Failed") if result else "Eligibility Failed"
             action_desc = f"RAISE EXCEPTION ({clean_err}); loan creation aborted via ROLLBACK."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Application rejected</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Application rejected</span>"
         else:
             action_desc = "Ready for loan application dispatch."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -837,11 +837,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "State transition committed; cascaded AFTER trigger to audit_log."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Workflow advanced</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Workflow advanced</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Workflow Violated") if result else "Workflow Violated"
             action_desc = f"RAISE EXCEPTION ({clean_err}); update aborted via ROLLBACK."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Transition rejected</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Transition rejected</span>"
         else:
             action_desc = "Ready for workflow state transition dispatch."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -862,11 +862,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Immutable audit entry appended to audit_log table with actor, timestamp, and diff."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Audit entry written</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Audit entry written</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Write Failed") if result else "Write Failed"
             action_desc = f"Database mutation failed ({clean_err}); ROLLBACK issued."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Mutation failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Mutation failed</span>"
         else:
             action_desc = "Awaiting account mutation to generate forensic trace."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -887,10 +887,10 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Fraud status update committed and recorded to audit_log."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Alert change audited</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Alert change audited</span>"
         elif status == "error":
             action_desc = "Update aborted via ROLLBACK."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Update failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Update failed</span>"
         else:
             action_desc = "Awaiting fraud status update."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -911,11 +911,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Account created and committed to storage heap."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Account created</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Account created</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Insert Failed") if result else "Insert Failed"
             action_desc = f"Account creation aborted ({clean_err})."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Insert failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Insert failed</span>"
         else:
             action_desc = "Ready for new account insertion dispatch."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -935,11 +935,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Profile contact fields updated on disk."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Profile updated</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Profile updated</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Update Failed") if result else "Update Failed"
             action_desc = f"Profile update aborted ({clean_err})."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Update failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Update failed</span>"
         else:
             action_desc = "Ready for profile update dispatch."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -959,11 +959,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Fraud alert registered; initiates automated transfer freeze check."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Alert logged</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Alert logged</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Logging Failed") if result else "Logging Failed"
             action_desc = f"Alert insertion aborted ({clean_err})."
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Logging failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Logging failed</span>"
         else:
             action_desc = "Ready to log fraud alert."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -984,11 +984,11 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
         ]
         if is_success:
             action_desc = "Query executed directly; tuples streamed from buffer pool without mutation."
-            action_badge = "<span style='color: #2E6B5E; font-weight: 700;'>Query executed</span>"
+            action_badge = "<span style='color: #5BD3AE; font-weight: 700;'>Query executed</span>"
         elif status == "error":
             clean_err = result.get("clean_message", "Query Error") if result else "Query Error"
             action_desc = f"Execution failed: {clean_err}"
-            action_badge = "<span style='color: #A8322A; font-weight: 700;'>Execution failed</span>"
+            action_badge = "<span style='color: #F0786B; font-weight: 700;'>Execution failed</span>"
         else:
             action_desc = "Ready for direct SQL dispatch."
             action_badge = "<span style='color: #9DB0B0; font-weight: 700;'>Not run yet</span>"
@@ -1021,9 +1021,9 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
                 {event_timing} {event_type}
             </div>
             <div class="eca-col-content">
-                <div><b>Target Table:</b> <code style="color: #A8322A;">{target_table}</code></div>
+                <div><b>Target Table:</b> <code style="color: #F0786B;">{target_table}</code></div>
                 <div><b>Granularity:</b> <code>FOR EACH ROW</code></div>
-                <div><b>Execution Mode:</b> <code style="color: #4B525B;">{sec_mode}</code></div>
+                <div><b>Execution Mode:</b> <code style="color: #AEB5C0;">{sec_mode}</code></div>
             </div>
             <div class="eca-col-footer">
                 {timing_desc}
@@ -1040,7 +1040,7 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
                 <div class="eca-col-header conditions">
                     2. Condition
                 </div>
-                <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #ECEBE5; color: #2E6B5E;">{cond_status_badge}</span>
+                <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #171C26; color: #5BD3AE;">{cond_status_badge}</span>
             </div>
             <div class="eca-col-title">
                 {cond_title}
@@ -1081,7 +1081,7 @@ def render_eca_trigger_dissector(job_key, user_inputs, result=None, active_role=
             </div>
             <div class="buffer-inspector-desc">
                 PostgreSQL evaluates role privileges at <b>Tier 1 (Parser & System Catalog Stage)</b>. 
-                Because active role <code style="color: #A8322A;">{active_role}</code> does not hold the required privilege on <code style="color: #4B525B;">{target_table}</code>, 
+                Because active role <code style="color: #F0786B;">{active_role}</code> does not hold the required privilege on <code style="color: #AEB5C0;">{target_table}</code>, 
                 PostgreSQL halts execution immediately with error <code>42501 (insufficient_privilege)</code>.
                 <br><br>
                 <b>Memory Allocation Abort:</b> In PostgreSQL engine internals, memory for <code>NEW</code> and <code>OLD</code> pseudo-record variables is only allocated <i>after</i> Tier-1 RBAC authorization succeeds. 
