@@ -1504,3 +1504,99 @@ pre code { background: transparent; padding: 0; }
     .context-strip > div, .context-strip > div + div { padding: 14px 0; border-left: 0; border-top: 1px solid var(--rule); }
     .context-strip > div:first-child { border-top: 0; }
 }
+
+/* =============================================================================
+   TYPOGRAPHY LAYER — display caps, stepped lines, hairline rules
+   Display moments (hero title, stage names, section titles) are set in tight
+   uppercase Instrument Serif. Lines step to the right and rules separate the
+   groups, as in the reference. Reading text stays in sentence case.
+   ============================================================================= */
+
+.intro-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+        "eyebrow eyebrow"
+        "title title"
+        "lede aside";
+    column-gap: clamp(32px, 5vw, 72px);
+    row-gap: 28px;
+    align-items: start;
+}
+
+.intro-grid > div { display: contents; }
+.intro-grid .eyebrow { grid-area: eyebrow; }
+.intro-title { grid-area: title; }
+.intro-lede { grid-area: lede; margin: 0; }
+.intro-aside { grid-area: aside; align-self: end; }
+
+.intro-title {
+    margin: 0;
+    padding-top: clamp(20px, 3vw, 32px);
+    border-top: 1px solid var(--rule-strong);
+    font-size: clamp(2.6rem, 7vw, 6.4rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.intro-title .line + .line { padding-left: 14vw; }
+.intro-title .amp { font-style: normal; color: var(--ink-3); }
+
+.stages {
+    display: block;
+    margin: clamp(72px, 9vw, 112px) 0 0;
+    padding: 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--rule);
+}
+
+.stage {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    grid-template-areas:
+        "num name tag"
+        ".   body body";
+    column-gap: 20px;
+    align-items: baseline;
+    margin-left: calc(var(--step, 0) * 12%);
+    padding: 22px 0 28px;
+    border-top: 1px solid var(--rule);
+}
+
+.stage::before { content: none; }
+.stage:nth-child(2) { --step: 1; }
+.stage:nth-child(3) { --step: 2; }
+.stage:nth-child(4) { --step: 3; }
+
+.stage-num { grid-area: num; align-self: start; }
+
+.stage-name {
+    grid-area: name;
+    margin: 0;
+    font-size: clamp(1.9rem, 3.8vw, 3.2rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.stage-tag { grid-area: tag; justify-self: end; margin: 0; }
+
+.stage-body { grid-area: body; margin: 14px 0 0; max-width: 46ch; }
+
+.section-head h2 {
+    margin: 14px 0 0;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+    .intro-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: "eyebrow" "title" "lede" "aside";
+    }
+    .intro-title .line + .line { padding-left: 0; }
+    .stage { margin-left: 0; grid-template-columns: 3rem minmax(0, 1fr) auto; }
+    .stage-name { font-size: 1.9rem; }
+}
