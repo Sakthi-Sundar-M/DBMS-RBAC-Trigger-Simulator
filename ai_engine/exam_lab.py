@@ -36,29 +36,16 @@ def render_exam_lab_tab(active_role="retail_customer"):
         st.error("Question bank could not be loaded. Please ensure data/exam_questions.json exists.")
         return
 
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 10px 16px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <div>
-                <div style="font-size: 15px; font-weight: 800; color: #f8fafc; letter-spacing: -0.3px;">AI Practice Lab & Exam Evaluator</div>
-                <div style="font-size: 11.5px; color: #94a3b8; margin-top: 1px;">Curated GATE CS, ISRO & Premier University benchmark challenges on PostgreSQL Triggers and RBAC</div>
-            </div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <span style="background: rgba(56, 189, 248, 0.12); border: 1px solid #0284c7; color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">models/dbms-trigger-evaluator</span>
-                <span style="background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">384-DIM DENSE EMBEDDINGS</span>
-                <span style="background: rgba(168, 85, 247, 0.12); border: 1px solid #9333ea; color: #c084fc; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">~14ms CPU LATENCY</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### AI-Powered Practice Lab & Exam Evaluator")
+    st.markdown("Practice actual GATE CS, ISRO, and Premier University Master's entrance questions on PostgreSQL Triggers and RBAC. Submissions are evaluated using a hybrid AI engine: **local Sentence-Transformers for deterministic cosine similarity grading** and **Google Gemini for Socratic error diagnosis**.")
 
     # -------------------------------------------------------------------------
-    # 1. Difficulty Level Selector & Counter
+    # 1. Difficulty Level Selector
     # -------------------------------------------------------------------------
-    diff_col1, diff_col2 = st.columns([2.5, 1.5])
+    diff_col1, diff_col2 = st.columns([2, 1])
     with diff_col1:
         selected_diff = st.radio(
-            "Practice Difficulty Level:",
+            "Select Practice Difficulty Level:",
             options=["Easy", "Medium", "Hard"],
             index=0,
             horizontal=True,
@@ -362,111 +349,25 @@ def render_exam_lab_tab(active_role="retail_customer"):
 """)
 
     # -------------------------------------------------------------------------
-    # 4. Evaluation Results Dashboard & AI Rubric Cockpit
+    # 4. Evaluation Results Dashboard
     # -------------------------------------------------------------------------
     if eval_state_key in st.session_state:
         eval_res = st.session_state[eval_state_key]
 
-        score_pct = eval_res.get("similarity_pct", 0.0)
-        raw_cos = eval_res.get("raw_cosine_sim", 0.0)
-        coverage_pct = eval_res.get("concept_coverage_pct", 0.0)
-        grade_band = eval_res.get("grade_band", "Evaluated")
-        grade_color = eval_res.get("grade_color", "#38bdf8")
-        present = eval_res.get("present_concepts", [])
-        missing = eval_res.get("missing_concepts", [])
-        summary_text = eval_res.get("feedback_summary", "")
-
-        # Chips for Verified and Missing Invariants
-        if present:
-            present_chips = "".join([
-                f"<span style='display: inline-block; background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #86efac; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin: 2px 4px 2px 0;'>✓ {c}</span>"
-                for c in present
-            ])
-        else:
-            present_chips = "<span style='color: #94a3b8; font-size: 11px;'>No target invariants verified yet.</span>"
-
-        if missing:
-            missing_chips = "".join([
-                f"<span style='display: inline-block; background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; color: #fca5a5; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin: 2px 4px 2px 0;'>✕ {c}</span>"
-                for c in missing
-            ])
-        else:
-            missing_chips = "<span style='color: #86efac; font-size: 11px; font-weight: 600;'>All key invariants verified! ✓</span>"
-
-        # Dynamic Gradient Progress Bar
-        bar_gradient = f"linear-gradient(90deg, {grade_color}88 0%, {grade_color} 100%)"
-
-        st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid {grade_color}; border-radius: 10px; padding: 18px 22px; margin-top: 18px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-            <!-- Cockpit Header -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 12px; font-weight: 700; color: {grade_color}; text-transform: uppercase; letter-spacing: 0.8px;">
-                        AI Evaluation Report
-                    </span>
-                    <span style="background: {grade_color}22; border: 1px solid {grade_color}; color: {grade_color}; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;">
-                        {grade_band}
-                    </span>
-                </div>
-                <div>
-                    <span style="font-size: 24px; font-weight: 800; color: {grade_color}; letter-spacing: -0.5px;">{score_pct}%</span>
-                    <span style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-left: 4px;">Match</span>
-                </div>
-            </div>
-
-            <!-- Dynamic Progress Meter -->
-            <div style="background: #1e293b; border-radius: 9999px; height: 10px; overflow: hidden; margin-bottom: 16px; border: 1px solid #334155;">
-                <div style="background: {bar_gradient}; width: {score_pct}%; height: 100%; border-radius: 9999px; transition: width 0.6s ease;"></div>
-            </div>
-
-            <!-- 3 Telemetry Metrics Grid -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
-                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px;">
-                    <div style="font-size: 10.5px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Composite Score</div>
-                    <div style="font-size: 15px; font-weight: 800; color: #f8fafc; margin-top: 2px;">{score_pct}%</div>
-                </div>
-                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px;">
-                    <div style="font-size: 10.5px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Vector Cosine Sim</div>
-                    <div style="font-size: 15px; font-weight: 800; color: #38bdf8; margin-top: 2px;">{raw_cos}%</div>
-                </div>
-                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px;">
-                    <div style="font-size: 10.5px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Invariant Coverage</div>
-                    <div style="font-size: 15px; font-weight: 800; color: #10b981; margin-top: 2px;">{coverage_pct}%</div>
-                </div>
-            </div>
-
-            <!-- Invariants Chips -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; font-size: 12px;">
-                <div>
-                    <div style="font-weight: 700; color: #86efac; margin-bottom: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Verified Invariants:
-                    </div>
-                    <div>{present_chips}</div>
-                </div>
-                <div>
-                    <div style="font-weight: 700; color: #fca5a5; margin-bottom: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Missing Invariants:
-                    </div>
-                    <div>{missing_chips}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Socratic Diagnostic Review (comfortable spacing)
-        diagnosis_text = st.session_state.get(f"diagnosis_{q_id}", summary_text)
+        # Socratic Diagnostic Review
+        diagnosis_text = st.session_state.get(f"diagnosis_{q_id}", eval_res.get("feedback_summary", ""))
 
         if diagnosis_text.strip().startswith("<div"):
             formatted_diagnosis = diagnosis_text.replace("\n", "")
         else:
-            formatted_diagnosis = f"<div style='line-height: 1.55; color: #cbd5e1;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
+            formatted_diagnosis = f"<div style='line-height: 1.5; color: #cbd5e1;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
 
         st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #10b981; border-radius: 10px; padding: 16px 20px; margin-top: 14px; margin-bottom: 14px;">
+        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #10b981; border-radius: 8px; padding: 16px 20px; margin-top: 14px; margin-bottom: 14px;">
             <div style="font-size: 11.5px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
                 Socratic Professor Feedback & Diagnostic Analysis
             </div>
-            <div style="color: #cbd5e1; font-size: 13.5px; line-height: 1.55;">
+            <div style="color: #cbd5e1; font-size: 13.5px; line-height: 1.5;">
                 {formatted_diagnosis}
             </div>
         </div>

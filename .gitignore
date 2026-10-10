@@ -35,6 +35,8 @@ scratch_*.txt
 # Academic Review Presentations & Question Papers
 *.pptx
 *.pdf
+*.docx
+generate_report_docx.py
 
 # Review Notes & Academic Guides
 Project_details.txt
