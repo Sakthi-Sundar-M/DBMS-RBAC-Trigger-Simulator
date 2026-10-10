@@ -24,112 +24,87 @@ st.markdown("""
     html, body, [class*="css"], .stMarkdown p { font-family: 'Inter', sans-serif !important; }
     h1, h2, h3, h4 { font-family: 'Poppins', sans-serif !important; }
 
-    /* Compact Layout: Eliminate excessive Streamlit default padding */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 2rem !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-        max-width: 97% !important;
-    }
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.35rem !important;
-    }
-    div[data-testid="stVerticalBlock"] > div {
-        gap: 0.30rem !important;
-    }
-    .element-container {
-        margin-bottom: 0.25rem !important;
-    }
-
-    /* Main Branding Header - Compact */
+    /* Main Branding Header */
     .brand-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
         border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 10px;
-        padding: 12px 18px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
     .brand-title {
         background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800 !important;
-        font-size: 1.55rem !important;
+        font-size: 2rem !important;
         letter-spacing: -0.5px;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
     }
     .brand-subtitle {
         color: #94A3B8 !important;
-        font-size: 12px !important;
+        font-size: 13px !important;
         font-weight: 500;
     }
 
-    /* KPI Metric Cards - Compact */
+    /* KPI Metric Cards */
     .kpi-card {
         background: #111827;
         border: 1px solid #1F2937;
-        border-radius: 8px;
-        padding: 8px 12px;
+        border-radius: 10px;
+        padding: 12px 16px;
         transition: all 0.2s ease;
     }
     .kpi-card:hover {
         border-color: #38BDF8;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
     .kpi-title {
-        font-size: 10px;
+        font-size: 11px;
         color: #64748B;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 1px;
     }
     .kpi-value {
-        font-size: 13.5px;
+        font-size: 15px;
         color: #F8FAFC;
         font-weight: 700;
-        margin-top: 2px;
-    }
-
-    /* Tabs Styling - Compact */
-    button[data-baseweb="tab"] {
-        padding: 6px 14px !important;
-        font-size: 12.5px !important;
-        font-weight: 600 !important;
+        margin-top: 4px;
     }
 
     /* Modern Primary Action Button */
     button[kind="primary"] {
         background: linear-gradient(90deg, #0284C7 0%, #2563EB 100%) !important;
         border: none !important;
-        box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35) !important;
-        transition: all 0.2s ease !important;
-        border-radius: 6px !important;
-        padding: 0.4rem 1.2rem !important;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4) !important;
+        transition: all 0.3s ease !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1.5rem !important;
         font-weight: 600 !important;
-        font-size: 13px !important;
+        letter-spacing: 0.5px !important;
     }
     button[kind="primary"]:hover {
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.5) !important;
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6) !important;
         transform: translateY(-1px) !important;
     }
 
     /* Guided Workflow Journey Bar */
     .guided-journey-bar {
-        background: rgba(15, 23, 42, 0.8);
+        background: rgba(15, 23, 42, 0.85);
         border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 8px 14px;
-        margin-bottom: 12px;
+        border-radius: 10px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -236,37 +211,37 @@ with st.sidebar.expander("Demo Test Cheatsheet", expanded=False):
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Developer & Team Profile")
 st.sidebar.markdown("""
-<div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 1px solid #3730a3; border-radius: 10px; padding: 12px; margin-bottom: 10px;">
-    <div style="display: inline-block; padding: 2px 7px; border-radius: 9999px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; margin-bottom: 6px;">
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 1px solid #3730a3; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+    <div style="display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; margin-bottom: 8px;">
         DBMS PROJECT
     </div>
-    <div style="color: #f8fafc; font-size: 15px; font-weight: 800;">M. Sakthi Sundar</div>
-    <div style="color: #a5b4fc; font-size: 11.5px; font-weight: 600; margin-top: 1px;">Reg No: 25BCE1244 &bull; Team MICHAEL</div>
-    <div style="color: #94a3b8; font-size: 11.5px;">B.Tech CSE &bull; <b>VIT Chennai</b></div>
-    <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; font-size: 10.5px;">
+    <div style="color: #f8fafc; font-size: 16px; font-weight: 800;">M. Sakthi Sundar</div>
+    <div style="color: #a5b4fc; font-size: 12px; font-weight: 600; margin-top: 2px;">Reg No: 25BCE1244 &bull; Team MICHAEL</div>
+    <div style="color: #94a3b8; font-size: 12px;">B.Tech CSE &bull; <b>VIT Chennai</b></div>
+    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; font-size: 11px;">
         Project Guide: <b style="color: #f8fafc;">Dr. Swaminathan A</b>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("""
-<div style="display: flex; gap: 6px; margin-bottom: 6px;">
-    <a href="https://github.com/Sakthi-Sundar-M" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #24292e; color: #ffffff; padding: 6px 4px; border-radius: 5px; text-decoration: none; font-size: 10.5px; font-weight: 600; border: 1px solid #444d56;">
-        <svg height="13" width="13" viewBox="0 0 16 16" fill="#ffffff" style="margin-right: 5px;">
+<div style="display: flex; gap: 8px; margin-bottom: 8px;">
+    <a href="https://github.com/Sakthi-Sundar-M" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #24292e; color: #ffffff; padding: 8px 6px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #444d56;">
+        <svg height="14" width="14" viewBox="0 0 16 16" fill="#ffffff" style="margin-right: 6px;">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
         </svg>
         GitHub
     </a>
-    <a href="https://www.linkedin.com/in/sakthi-sundar-m-34345a267" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #0a66c2; color: #ffffff; padding: 6px 4px; border-radius: 5px; text-decoration: none; font-size: 10.5px; font-weight: 600; border: 1px solid #004182;">
-        <svg height="13" width="13" viewBox="0 0 24 24" fill="#ffffff" style="margin-right: 5px;">
+    <a href="https://www.linkedin.com/in/sakthi-sundar-m-34345a267" target="_blank" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; background: #0a66c2; color: #ffffff; padding: 8px 6px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #004182;">
+        <svg height="14" width="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-right: 6px;">
             <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28z"></path>
         </svg>
         LinkedIn
     </a>
 </div>
-<div style="margin-bottom: 8px;">
-    <a href="https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #1e293b; color: #38bdf8; padding: 6px 8px; border-radius: 5px; text-decoration: none; font-size: 10.5px; font-weight: 600; border: 1px solid #38bdf8;">
-        <svg height="12" width="12" viewBox="0 0 16 16" fill="#38bdf8" style="margin-right: 5px;">
+<div style="margin-bottom: 12px;">
+    <a href="https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #1e293b; color: #38bdf8; padding: 7px 10px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 600; border: 1px solid #38bdf8;">
+        <svg height="13" width="13" viewBox="0 0 16 16" fill="#38bdf8" style="margin-right: 6px;">
             <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8V1.5z"></path>
         </svg>
         GitHub Repository
