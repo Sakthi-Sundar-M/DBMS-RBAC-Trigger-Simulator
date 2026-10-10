@@ -36,16 +36,29 @@ def render_exam_lab_tab(active_role="retail_customer"):
         st.error("Question bank could not be loaded. Please ensure data/exam_questions.json exists.")
         return
 
-    st.markdown("### AI-Powered Practice Lab & Exam Evaluator")
-    st.markdown("Practice actual GATE CS, ISRO, and Premier University Master's entrance questions on PostgreSQL Triggers and RBAC. Submissions are evaluated using a hybrid AI engine: **local Sentence-Transformers for deterministic cosine similarity grading** and **Google Gemini for Socratic error diagnosis**.")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 10px 16px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+                <div style="font-size: 15px; font-weight: 800; color: #f8fafc; letter-spacing: -0.3px;">AI Practice Lab & Exam Evaluator</div>
+                <div style="font-size: 11.5px; color: #94a3b8; margin-top: 1px;">Curated GATE CS, ISRO & Premier University benchmark challenges on PostgreSQL Triggers and RBAC</div>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <span style="background: rgba(56, 189, 248, 0.12); border: 1px solid #0284c7; color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">models/dbms-trigger-evaluator</span>
+                <span style="background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">384-DIM DENSE EMBEDDINGS</span>
+                <span style="background: rgba(168, 85, 247, 0.12); border: 1px solid #9333ea; color: #c084fc; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">~14ms CPU LATENCY</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------------------
-    # 1. Difficulty Level Selector
+    # 1. Difficulty Level Selector & Counter
     # -------------------------------------------------------------------------
-    diff_col1, diff_col2 = st.columns([2, 1])
+    diff_col1, diff_col2 = st.columns([2.5, 1.5])
     with diff_col1:
         selected_diff = st.radio(
-            "Select Practice Difficulty Level:",
+            "Practice Difficulty Level:",
             options=["Easy", "Medium", "Hard"],
             index=0,
             horizontal=True,
@@ -64,6 +77,14 @@ def render_exam_lab_tab(active_role="retail_customer"):
     current_q = tier_questions[cur_idx]
     q_id = current_q["id"]
 
+    with diff_col2:
+        st.markdown(f"""
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 100%; padding-top: 18px;">
+            <span style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;">
+                Question {cur_idx + 1} of {len(tier_questions)}
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------------------
     # 2. Problem Statement Card
@@ -77,24 +98,24 @@ def render_exam_lab_tab(active_role="retail_customer"):
         diff_badge = "<span style='background: rgba(192, 132, 252, 0.15); border: 1px solid #9333ea; color: #c084fc; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700;'>HARD</span>"
 
     st.markdown(f"""
-    <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #38bdf8; border-radius: 8px; padding: 16px 20px; margin-bottom: 18px;">
+    <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #38bdf8; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
-                <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px;">
+                <span style="font-size: 10.5px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.8px;">
                     {current_q.get('topic')} &bull; {current_q.get('subtopic')}
                 </span>
-                <h3 style="margin: 4px 0 0 0; color: #f8fafc; font-size: 18px;">
+                <h3 style="margin: 3px 0 0 0; color: #f8fafc; font-size: 17px; font-weight: 700;">
                     {current_q.get('title')}
                 </h3>
             </div>
             <div style="margin-top: 4px;">
                 {diff_badge} &nbsp;
-                <span style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                <span style="background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600;">
                     Source: {current_q.get('source')}
                 </span>
             </div>
         </div>
-        <div style="color: #e2e8f0; font-size: 13.5px; line-height: 1.6; margin-top: 12px; background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 6px; border: 1px solid #1e293b;">
+        <div style="color: #e2e8f0; font-size: 13px; line-height: 1.5; margin-top: 10px; background: rgba(15, 23, 42, 0.6); padding: 10px 14px; border-radius: 6px; border: 1px solid #1e293b;">
             {current_q.get('prompt')}
         </div>
     </div>
@@ -341,31 +362,117 @@ def render_exam_lab_tab(active_role="retail_customer"):
 """)
 
     # -------------------------------------------------------------------------
-    # 4. Evaluation Results Dashboard
+    # 4. Evaluation Results Dashboard & AI Rubric Cockpit
     # -------------------------------------------------------------------------
     if eval_state_key in st.session_state:
         eval_res = st.session_state[eval_state_key]
 
+        score_pct = eval_res.get("similarity_pct", 0.0)
+        raw_cos = eval_res.get("raw_cosine_sim", 0.0)
+        coverage_pct = eval_res.get("concept_coverage_pct", 0.0)
+        grade_band = eval_res.get("grade_band", "Evaluated")
+        grade_color = eval_res.get("grade_color", "#38bdf8")
+        present = eval_res.get("present_concepts", [])
+        missing = eval_res.get("missing_concepts", [])
+        summary_text = eval_res.get("feedback_summary", "")
+
+        # Chips for Verified and Missing Invariants
+        if present:
+            present_chips = "".join([
+                f"<span style='display: inline-block; background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #86efac; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin: 2px 4px 2px 0;'>✓ {c}</span>"
+                for c in present
+            ])
+        else:
+            present_chips = "<span style='color: #94a3b8; font-size: 11px;'>No target invariants verified yet.</span>"
+
+        if missing:
+            missing_chips = "".join([
+                f"<span style='display: inline-block; background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; color: #fca5a5; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin: 2px 4px 2px 0;'>✕ {c}</span>"
+                for c in missing
+            ])
+        else:
+            missing_chips = "<span style='color: #86efac; font-size: 11px; font-weight: 600;'>All key invariants verified! ✓</span>"
+
+        # Dynamic Gradient Progress Bar
+        bar_gradient = f"linear-gradient(90deg, {grade_color}88 0%, {grade_color} 100%)"
+
+        st.markdown(f"""
+        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid {grade_color}; border-radius: 8px; padding: 14px 18px; margin-top: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
+            <!-- Cockpit Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 11px; font-weight: 700; color: {grade_color}; text-transform: uppercase; letter-spacing: 0.8px;">
+                        AI Evaluation Report
+                    </span>
+                    <span style="background: {grade_color}22; border: 1px solid {grade_color}; color: {grade_color}; padding: 2px 8px; border-radius: 9999px; font-size: 10.5px; font-weight: 700;">
+                        {grade_band}
+                    </span>
+                </div>
+                <div>
+                    <span style="font-size: 22px; font-weight: 800; color: {grade_color}; letter-spacing: -0.5px;">{score_pct}%</span>
+                    <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-left: 3px;">Match</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Progress Meter -->
+            <div style="background: #1e293b; border-radius: 9999px; height: 8px; overflow: hidden; margin-bottom: 12px; border: 1px solid #334155;">
+                <div style="background: {bar_gradient}; width: {score_pct}%; height: 100%; border-radius: 9999px; transition: width 0.6s ease;"></div>
+            </div>
+
+            <!-- 3 Telemetry Metrics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;">
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Composite Score</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #f8fafc; margin-top: 1px;">{score_pct}%</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Vector Cosine Sim</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #38bdf8; margin-top: 1px;">{raw_cos}%</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Invariant Coverage</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-top: 1px;">{coverage_pct}%</div>
+                </div>
+            </div>
+
+            <!-- Invariants Chips -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; font-size: 11.5px;">
+                <div>
+                    <div style="font-weight: 700; color: #86efac; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Verified Invariants:
+                    </div>
+                    <div>{present_chips}</div>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #fca5a5; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Missing Invariants:
+                    </div>
+                    <div>{missing_chips}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Socratic Diagnostic Review (compact line spacing)
-        diagnosis_text = st.session_state.get(f"diagnosis_{q_id}", eval_res.get("feedback_summary", ""))
+        diagnosis_text = st.session_state.get(f"diagnosis_{q_id}", summary_text)
 
         if diagnosis_text.strip().startswith("<div"):
             formatted_diagnosis = diagnosis_text.replace("\n", "")
         else:
-            formatted_diagnosis = f"<div style='line-height: 1.35; color: #cbd5e1;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
+            formatted_diagnosis = f"<div style='line-height: 1.4; color: #cbd5e1;'>{diagnosis_text.replace(chr(10), '<br>')}</div>"
 
         st.markdown(f"""
-        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #10b981; border-radius: 8px; padding: 14px 18px; margin-top: 14px;">
+        <div style="background: #111827; border: 1px solid #1f2937; border-left: 4px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-top: 10px;">
             <div style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
                 Socratic Professor Feedback & Diagnostic Analysis
             </div>
-            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.35;">
+            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.4;">
                 {formatted_diagnosis}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # Collapsible Official Solution Drawer (duplicate theoretical background removed)
+        # Collapsible Official Solution Drawer
         with st.expander("Inspect Official Solution Key", expanded=False):
             st.markdown("**Official Solution Key:**")
             st.code(current_q.get("solution_key", ""), language="sql")
