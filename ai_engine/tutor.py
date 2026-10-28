@@ -1,5 +1,10 @@
 import os
-from typing import Dict, Any, Optional
+import re
+import json
+from typing import Dict, Any, Optional, List
+
+GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+
 
 def get_gemini_client():
     """
@@ -30,6 +35,43 @@ def get_gemini_client():
         return genai.Client(api_key=api_key)
     except Exception:
         return None
+
+
+def _call_gemini_content(
+    client,
+    prompt: str,
+    system_instruction: Optional[str] = None,
+    temperature: float = 0.4,
+    response_mime_type: Optional[str] = None
+) -> Optional[str]:
+    """
+    Resilient Google GenAI caller trying supported Gemini models in sequence.
+    """
+    if not client:
+        return None
+    try:
+        from google.genai import types
+        config_kwargs: Dict[str, Any] = {"temperature": temperature}
+        if system_instruction:
+            config_kwargs["system_instruction"] = system_instruction
+        if response_mime_type:
+            config_kwargs["response_mime_type"] = response_mime_type
+        config = types.GenerateContentConfig(**config_kwargs)
+
+        for model_name in GEMINI_FALLBACK_MODELS:
+            try:
+                resp = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=config
+                )
+                if resp and resp.text:
+                    return resp.text.strip()
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return None
 
 
 def diagnose_student_submission(question: Dict[str, Any], student_text: str, eval_result: Dict[str, Any]) -> str:
@@ -104,16 +146,15 @@ INSTRUCTIONS:
 5. Use clean markdown formatting without excessive symbols.
 """
     try:
-        from google.genai import types
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction="You are a rigorous DBMS professor specializing in relational engines, PL/pgSQL procedural triggers, and database security.",
-                temperature=0.3
-            )
+        resp_text = _call_gemini_content(
+            client,
+            prompt,
+            system_instruction="You are a rigorous DBMS professor specializing in relational engines, PL/pgSQL procedural triggers, and database security.",
+            temperature=0.3
         )
-        return response.text.strip()
+        if resp_text:
+            return resp_text
+        return f"Offline Diagnostic fallback:\n\n{question.get('ground_truth_explanation', '')}"
     except Exception as e:
         return f"Offline Diagnostic fallback (API error: {str(e)}):\n\n{question.get('ground_truth_explanation', '')}"
 
@@ -150,16 +191,15 @@ Provide a progressive Socratic Hint (Level {hint_level} of 2).
 - Keep it under 3 sentences.
 """
     try:
-        from google.genai import types
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction="You are a Socratic DBMS tutor providing hints without revealing the full solution.",
-                temperature=0.4
-            )
+        resp_text = _call_gemini_content(
+            client,
+            prompt,
+            system_instruction="You are a Socratic DBMS tutor providing hints without revealing the full solution.",
+            temperature=0.4
         )
-        return response.text.strip()
+        if resp_text:
+            return resp_text
+        return static_hint
     except Exception:
         return static_hint
 
@@ -1488,16 +1528,14 @@ Return clean markdown with:
 3. A Socratic Hint (1 sentence)
 """
         try:
-            from google.genai import types
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=online_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction="You are a DBMS question generator for GATE and university competitive exams.",
-                    temperature=0.6
-                )
+            resp_text = _call_gemini_content(
+                client,
+                online_prompt,
+                system_instruction="You are a DBMS question generator for GATE and university competitive exams.",
+                temperature=0.6
             )
-            offline_res["ai_generated_content"] = response.text.strip()
+            if resp_text:
+                offline_res["ai_generated_content"] = resp_text
         except Exception:
             pass
 
@@ -1508,34 +1546,37 @@ def evaluate_isomorphic_submission(student_code: str, iso_data: Dict[str, Any]) 
     """
     Evaluates a student's submission for an isomorphic variant against its target
     relational schema, transition variables, and key invariants.
+    Strictly detects unedited starter templates and scores them as Not Submitted (0%).
     """
-    clean_code = student_code.strip()
     starter = iso_data.get("starter_code", "").strip()
     rubric = iso_data.get("rubric_checks", [])
 
-    if not clean_code or clean_code == starter or len(clean_code) < 15:
+    from ai_engine.evaluator import extract_substantive_student_answer
+    substantive_text, is_unanswered = extract_substantive_student_answer(student_code, starter)
+
+    if is_unanswered or not substantive_text:
         return {
             "score": 0,
             "grade_band": "Not Submitted",
             "passed_checks": [],
             "missing_checks": [c["label"] for c in rubric],
-            "feedback": "No answer detected: You submitted the starter template without modification. Please implement your SQL solution in the buffer before evaluating."
+            "feedback": "No answer detected: You submitted the starter template without writing your solution. Please fill in your answers or SQL code before evaluating."
         }
 
     passed = []
     missing = []
-    code_lower = clean_code.lower()
+    text_lower = substantive_text.lower()
 
     for item in rubric:
         pattern = item.get("pattern", "")
         label = item.get("label", "")
         if isinstance(pattern, list):
-            match = any(p.lower() in code_lower for p in pattern)
+            match = any(p.lower() in text_lower for p in pattern)
         elif isinstance(pattern, str) and pattern.startswith("regex:"):
             import re
-            match = bool(re.search(pattern[6:], clean_code, re.IGNORECASE))
+            match = bool(re.search(pattern[6:], substantive_text, re.IGNORECASE))
         else:
-            match = str(pattern).lower() in code_lower
+            match = str(pattern).lower() in text_lower
 
         if match:
             passed.append(label)
@@ -1565,4 +1606,273 @@ def evaluate_isomorphic_submission(student_code: str, iso_data: Dict[str, Any]) 
         "missing_checks": missing,
         "feedback": feedback
     }
+
+
+# Enterprise Domain Profiles for Procedural Synthesis
+DOMAIN_PROFILES: Dict[str, Dict[str, Any]] = {
+    "aviation": {
+        "domain_name": "Aviation Air Traffic Control",
+        "system_desc": "In an Air Traffic Control (ATC) database and flight dispatch engine",
+        "key_replacements": [
+            (r"\baccounts?\b", "flights"),
+            (r"\bAccount\b", "Flight"),
+            (r"\bbalances?\b", "fuel_reserves"),
+            (r"\bBalance\b", "Fuel_Reserve"),
+            (r"\bcustomers?\b", "passengers"),
+            (r"\bCustomer\b", "Passenger"),
+            (r"\btransactions?\b", "flight_dispatches"),
+            (r"\bTransaction\b", "Flight_Dispatch"),
+            (r"\btransfers?\b", "flight_legs"),
+            (r"\bbranch\b", "airport_terminal"),
+            (r"\bbranches\b", "airport_terminals"),
+            (r"\bBranch\b", "Airport_Terminal"),
+            (r"\bmanager\b", "atc_controller"),
+            (r"\bManager\b", "ATC_Controller"),
+            (r"\bteller\b", "gate_agent"),
+            (r"\bpatient\b", "flight_manifest"),
+            (r"\bPatient\b", "Flight_Manifest"),
+            (r"\bdoctor\b", "captain_pilot"),
+            (r"\bDoctor\b", "Captain_Pilot"),
+            (r"\bclinic\b", "hangar"),
+            (r"\bClinic\b", "Hangar"),
+            (r"\bward\b", "concourse"),
+            (r"\bWard\b", "Concourse"),
+            (r"\bmedication\b", "avionics_component"),
+            (r"\bwarehouse\b", "cargo_hub"),
+            (r"\bproduct\b", "flight_payload"),
+            (r"\bitem\b", "cargo_unit"),
+        ]
+    },
+    "healthcare": {
+        "domain_name": "Healthcare & Clinical EMR",
+        "system_desc": "In a hospital electronic medical records (EMR) and clinical admissions system",
+        "key_replacements": [
+            (r"\baccounts?\b", "patient_charts"),
+            (r"\bbalances?\b", "dosage_levels"),
+            (r"\bcustomers?\b", "patients"),
+            (r"\btransactions?\b", "clinical_observations"),
+            (r"\bbranch\b", "hospital_wing"),
+            (r"\bmanager\b", "attending_physician"),
+        ]
+    },
+    "fintech": {
+        "domain_name": "FinTech & Digital Banking",
+        "system_desc": "In a core banking settlement engine and digital ledger system",
+        "key_replacements": []
+    },
+    "logistics": {
+        "domain_name": "Global Logistics & Supply Chain",
+        "system_desc": "In a global multimodal supply chain logistics and cargo dispatch engine",
+        "key_replacements": [
+            (r"\baccounts?\b", "freight_consignments"),
+            (r"\bbalances?\b", "payload_weights"),
+            (r"\bcustomers?\b", "consignees"),
+            (r"\btransactions?\b", "waypoint_scans"),
+            (r"\bbranch\b", "distribution_center"),
+            (r"\bmanager\b", "fleet_dispatcher"),
+        ]
+    },
+    "cloud": {
+        "domain_name": "Cloud Infrastructure & Multi-Tenant Databases",
+        "system_desc": "In a cloud Kubernetes control plane and multi-tenant PostgreSQL cluster",
+        "key_replacements": [
+            (r"\baccounts?\b", "tenant_workspaces"),
+            (r"\bbalances?\b", "allocated_credits"),
+            (r"\bcustomers?\b", "tenant_users"),
+            (r"\btransactions?\b", "api_rpc_calls"),
+            (r"\bbranch\b", "cloud_region"),
+            (r"\bmanager\b", "cluster_admin"),
+        ]
+    },
+    "autonomous": {
+        "domain_name": "Autonomous Vehicle Telemetry & Fleet IoT",
+        "system_desc": "In an autonomous vehicle fleet telemetry database processing real-time sensor streams",
+        "key_replacements": [
+            (r"\baccounts?\b", "fleet_vehicles"),
+            (r"\bbalances?\b", "battery_percentages"),
+            (r"\bcustomers?\b", "depot_operators"),
+            (r"\btransactions?\b", "lidar_pings"),
+            (r"\bbranch\b", "charging_depot"),
+            (r"\bmanager\b", "fleet_supervisor"),
+        ]
+    },
+    "telecom": {
+        "domain_name": "Telecommunications Call Detail Records (CDR)",
+        "system_desc": "In a telecommunications core carrier network processing real-time Call Detail Records (CDR)",
+        "key_replacements": [
+            (r"\baccounts?\b", "subscriber_lines"),
+            (r"\bbalances?\b", "prepaid_airtime_balances"),
+            (r"\bcustomers?\b", "mobile_subscribers"),
+            (r"\btransactions?\b", "call_detail_records"),
+            (r"\bbranch\b", "telecom_circle"),
+            (r"\bmanager\b", "network_engineer"),
+        ]
+    }
+}
+
+
+def resolve_domain_key(domain_str: Optional[str]) -> str:
+    if not domain_str:
+        return "aviation"
+    d_low = domain_str.lower()
+    if any(k in d_low for k in ["aviation", "flight", "air traffic", "atc", "airport"]):
+        return "aviation"
+    if any(k in d_low for k in ["health", "hospital", "patient", "clinical", "emr", "doctor"]):
+        return "healthcare"
+    if any(k in d_low for k in ["logistics", "supply", "warehouse", "freight", "ecommerce", "order"]):
+        return "logistics"
+    if any(k in d_low for k in ["cloud", "microservice", "tenant", "kubernetes"]):
+        return "cloud"
+    if any(k in d_low for k in ["autonomous", "vehicle", "telemetry", "fleet", "iot"]):
+        return "autonomous"
+    if any(k in d_low for k in ["telecom", "cdr", "call detail", "subscriber"]):
+        return "telecom"
+    return "fintech"
+
+
+def adapt_mcq_to_domain(mcq_question: Dict[str, Any], domain: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Procedurally adapts an MCQ question into the requested enterprise domain.
+    Preserves underlying relational invariants and verified solution letter.
+    """
+    dom_key = resolve_domain_key(domain)
+    profile = DOMAIN_PROFILES[dom_key]
+    target_domain = domain if domain else profile["domain_name"]
+    variants = mcq_question.get("variants", [])
+
+    # Check if pre-computed variant matches domain category
+    for v in variants:
+        v_dom = v.get("domain", "").lower()
+        if dom_key == "healthcare" and any(k in v_dom for k in ["health", "clinic", "patient", "medical"]):
+            v_copy = dict(v)
+            v_copy["domain"] = target_domain
+            return v_copy
+        elif dom_key == "fintech" and any(k in v_dom for k in ["bank", "fintech", "wire", "settlement", "ledger"]):
+            v_copy = dict(v)
+            v_copy["domain"] = target_domain
+            return v_copy
+        elif dom_key == "logistics" and any(k in v_dom for k in ["commerce", "inventory", "order", "supply", "logistics"]):
+            v_copy = dict(v)
+            v_copy["domain"] = target_domain
+            return v_copy
+        elif dom_key == "aviation" and any(k in v_dom for k in ["flight", "aviation", "airline", "airport"]):
+            v_copy = dict(v)
+            v_copy["domain"] = target_domain
+            return v_copy
+
+    # Procedural entity and context substitution
+    sys_desc = profile["system_desc"]
+    orig_prompt = mcq_question.get("prompt", "")
+    orig_opts = mcq_question.get("options", [])
+    corr_opt = mcq_question.get("correct_option", "A").upper()
+    orig_exp = mcq_question.get("explanation", "")
+
+    def apply_replacements(text: str) -> str:
+        res = text
+        for pat, repl in profile["key_replacements"]:
+            res = re.sub(pat, repl, res)
+        return res
+
+    adapted_prompt = apply_replacements(orig_prompt)
+    if not any(w in adapted_prompt.lower() for w in ["flight", "aircraft", "patient", "cloud", "subscriber", "cargo", "telemetry"]):
+        if adapted_prompt.lower().startswith("in ") or adapted_prompt.lower().startswith("consider "):
+            adapted_prompt = f"{sys_desc}, {adapted_prompt[0].lower() + adapted_prompt[1:]}"
+        else:
+            adapted_prompt = f"{sys_desc}: {adapted_prompt}"
+
+    adapted_opts = [apply_replacements(opt) for opt in orig_opts]
+    adapted_exp = f"In {target_domain}: {apply_replacements(orig_exp)}"
+
+    # Decouple option placement: permute options so correct option is NOT locked to parent letter!
+    letters = ['A', 'B', 'C', 'D']
+    shift = (len(target_domain) % 3) + 1  # shift 1, 2, or 3
+    old_idx = letters.index(corr_opt) if corr_opt in letters else 0
+    new_idx = (old_idx + shift) % 4
+
+    cleaned_opts = [re.sub(r'^[A-Da-d][\.\)]\s*', '', o).strip() for o in adapted_opts]
+    if len(cleaned_opts) == 4:
+        corr_text = cleaned_opts[old_idx]
+        other_texts = [cleaned_opts[i] for i in range(4) if i != old_idx]
+        new_cleaned = [None] * 4
+        new_cleaned[new_idx] = corr_text
+        other_slots = [i for i in range(4) if i != new_idx]
+        for s, txt in zip(other_slots, other_texts):
+            new_cleaned[s] = txt
+        final_opts = [f"{letters[i]}. {new_cleaned[i]}" for i in range(4)]
+        new_corr_letter = letters[new_idx]
+    else:
+        final_opts = adapted_opts
+        new_corr_letter = corr_opt
+
+    return {
+        "domain": target_domain,
+        "prompt": adapted_prompt,
+        "options": final_opts,
+        "correct_option": new_corr_letter,
+        "explanation": adapted_exp
+    }
+
+
+def generate_live_mcq_variant(mcq_question: Dict[str, Any], domain: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Synthesizes a brand new isomorphic MCQ variant using Google Gemini (trying gemini-2.5-flash / gemini-2.0-flash / gemini-1.5-flash),
+    with robust offline procedural adaptation fallback to ensure the selected enterprise department is always honored.
+    """
+    client = get_gemini_client()
+    dom_key = resolve_domain_key(domain)
+    target_domain = domain if domain else DOMAIN_PROFILES[dom_key]["domain_name"]
+
+    if client:
+        prompt = f"""
+You are an expert DBMS professor creating an isomorphic MCQ variant for a database examination.
+
+ORIGINAL QUESTION:
+Source: {mcq_question.get('source')}
+Topic: {mcq_question.get('topic')} ({mcq_question.get('subtopic')})
+Prompt: {mcq_question.get('prompt')}
+Options: {mcq_question.get('options')}
+Correct Option: {mcq_question.get('correct_option')}
+Explanation: {mcq_question.get('explanation')}
+
+TARGET DOMAIN: '{target_domain}'
+
+CRITICAL ISOMORPHIC RULES:
+1. SCENARIO RE-FRAMING: The scenario MUST be set in concrete database operations of '{target_domain}' (e.g. realistic tables, schemas, workflows, and column names). DO NOT just prepend the domain name to the original question.
+2. CONCEPTUAL ISOMORPHISM: Test the EXACT SAME mathematical, relational, or architectural invariant (e.g., ECA trigger timing, cascade deletion paths, serializability acyclicity, grant revocation tree, etc.).
+3. OPTION DIVERSITY & PERMUTATION: 
+   - Write realistic domain-specific distractors.
+   - DO NOT automatically put the correct answer at the same letter option as the parent ({mcq_question.get('correct_option')}). Randomly place the correct answer at Option A, B, C, or D, and set "correct_option" to that exact letter!
+
+Respond STRICTLY in JSON format with these exact keys:
+{{
+  "domain": "{target_domain}",
+  "prompt": "...",
+  "options": [
+    "A. ...",
+    "B. ...",
+    "C. ...",
+    "D. ..."
+  ],
+  "correct_option": "A",
+  "explanation": "..."
+}}
+"""
+        resp_text = _call_gemini_content(
+            client,
+            prompt,
+            response_mime_type="application/json",
+            temperature=0.4
+        )
+        if resp_text:
+            try:
+                res = json.loads(resp_text.strip())
+                if "options" in res and len(res["options"]) == 4 and "correct_option" in res:
+                    res["domain"] = target_domain
+                    return res
+            except Exception:
+                pass
+
+    # Seamless procedural fallback to target domain with permuted option placement
+    return adapt_mcq_to_domain(mcq_question, domain=target_domain)
+
 

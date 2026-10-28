@@ -1,5 +1,7 @@
 # Database Users & Roles Simulator, Trigger Visualizer, and AI Practice Lab
+### Academic Evaluation Repository (Professor Copy)
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://dbms-rbac-trigger-simulator-michael.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-red.svg)](https://streamlit.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-4169E1.svg)](https://neon.tech/)
@@ -10,8 +12,33 @@
 **Institution**: Vellore Institute of Technology (VIT), Chennai  
 **Author**: M. Sakthi Sundar (Reg. No: 25BCE1244)  
 **Project Guide**: Dr. Swaminathan A (Faculty ID: 54632)  
-**GitHub**: [Sakthi-Sundar-M](https://github.com/Sakthi-Sundar-M)  
+**Live Application Deployment**: [https://dbms-rbac-trigger-simulator-michael.streamlit.app/](https://dbms-rbac-trigger-simulator-michael.streamlit.app/)  
+**Original Public Repository**: [https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator](https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator)  
+**GitHub Profile**: [Sakthi-Sundar-M](https://github.com/Sakthi-Sundar-M)  
 **LinkedIn**: [Sakthi Sundar M](https://www.linkedin.com/in/sakthi-sundar-m)  
+
+---
+
+> [!IMPORTANT]
+> ### NOTICE FOR EVALUATOR / PROFESSOR: RUNNING THE APPLICATION
+> **Cloning this repository locally will NOT run the application out-of-the-box.**  
+> The application is securely connected to a live serverless cloud database (**Neon PostgreSQL**) via protected database connection strings, credentials, and API access keys stored in environment secrets (`.streamlit/secrets.toml`), which are strictly excluded from git tracking for enterprise database security and integrity.
+>
+> **How to Evaluate the Project:**  
+> Please access and evaluate the full interactive application through our live production deployment hosted on Streamlit Cloud:  
+> **[Live Interactive App: https://dbms-rbac-trigger-simulator-michael.streamlit.app/](https://dbms-rbac-trigger-simulator-michael.streamlit.app/)**  
+>
+> All backend tables, PostgreSQL triggers, RBAC permission enforcements, live transaction visualizers, and the AI Practice Lab are pre-configured, live, and fully operational on this deployment link.
+
+---
+
+### Project Reference Files Included in this Repository
+
+| Document | Purpose & Description |
+| :--- | :--- |
+| **[`competitive_exam_questions_and_answers.md`](./competitive_exam_questions_and_answers.md)** | Complete compilation of all **178 authentic competitive exam questions** (GATE, ISRO, NIELIT, UGC-NET) with verified official answer keys and difficulty categorizations (no spoilers/explanations). |
+| **[`competitive_exam_practice_variants.md`](./competitive_exam_practice_variants.md)** | Full library of all **534 isomorphic practice variants** across 3 enterprise domains (FinTech / Core Banking, Healthcare EMR, and E-Commerce Retail) with complete question statements, answer choices, and correct solutions. |
+| **[`gate_pyq_evidence_matrix.md`](./gate_pyq_evidence_matrix.md)** | Direct IIT/IISc master question paper provenance matrix linking each GATE question to its official PDF source, page number, and question number. |
 
 ---
 
@@ -108,56 +135,64 @@ Four transactional triggers enforce financial consistency and security within th
 
 ---
 
-## 6. AI Practice Lab & Isomorphic Variant Engine (Phase 5)
+## 6. AI Practice Lab & Exam Evaluator (Phase 5)
 
-Tab 5 provides an interactive learning environment for mastering triggers and access control:
+Tab 5 provides an interactive learning environment for competitive examination mastery, triggers, and access control:
 
+- **178 Curated Competitive Exam Questions**:
+  - 50 Authentic GATE CS & DA Questions (2012–2026) verified against organizing IIT/IISc master papers.
+  - 28 ISRO Scientist / Engineer Questions.
+  - 50 NIELIT Scientist 'B' & Technical Assistant Questions.
+  - 50 UGC-NET Computer Science Questions.
+- **534 Pre-Defined Enterprise Practice Variants**:
+  - 3 isomorphic, distinct domain variants for every single parent question:
+    1. **Enterprise FinTech & Banking Ledger**: Focuses on core banking ledger integrity, transaction concurrency, and audit trails.
+    2. **Healthcare & Clinical EMR Infrastructure**: Focuses on HIPAA-compliant medical records, HL7 schemas, and physician authorization.
+    3. **E-Commerce & Supply Chain Logistics**: Focuses on inventory reserves, cart idempotency, flash sales, and order lifecycle states.
+  - **Decoupled Key Alignment**: Variant answer keys are systematically permuted to prevent rote memorization while preserving underlying relational invariants.
 - **Fine-Tuned Evaluator Model (`models/dbms-trigger-evaluator`)**:
-  - Sentence Transformer model fine-tuned using MultipleNegativesRankingLoss on 48 domain-specific query and trigger concept pairs.
+  - Sentence Transformer model fine-tuned using MultipleNegativesRankingLoss.
   - Generates dense semantic embeddings for automated student answer evaluation on CPU in under 15 milliseconds.
   - Combines cosine similarity (`weight = 0.60`) with AST-extracted SQL concept invariant verification (`weight = 0.40`).
-- **Isomorphic Problem Generation Engine**:
-  - Dynamically synthesizes variant problems across 5 diverse enterprise domains:
-    1. E-Commerce (Order processing, flash sale inventory, anti-fraud)
-    2. Healthcare & Telemedicine (Prescription limits, controlled drugs, physician authorization)
-    3. Ride-Hailing & Logistics (Driver dispatch, surge capping, passenger safety hold)
-    4. FinTech & Micro-Lending (P2P transfers, wallet overdraft, credit limits)
-    5. Academic & University Records (Grade publishing, prerequisite checks, academic probation)
-  - Features dedicated SQL code editors, structured hints, comprehensive model solutions, and real-time automated scoring.
 
 ---
 
 ## 7. Project Structure
 
 ```
-DBMS-RBAC-Trigger-Simulator/
-├── app.py                     # Streamlit frontend with 5 integrated modules
-├── config.py                  # Roles, schemas, SQL definitions, and configurations
-├── db_connection.py           # Thread-safe pooled PostgreSQL connection manager
-├── visualizer.py              # Visual pipeline rendering, live trace, and diff viewers
-├── requirements.txt           # Production dependencies
-├── README.md                  # System architecture, RBAC matrix, and deployment guide
-├── .gitignore                 # Exclusion rules for secrets, caches, and local files
-├── ai_engine/                 # AI practice and isomorphic problem generation
-│   ├── evaluator.py           # Hybrid AI evaluation engine (Embeddings + Invariants)
-│   ├── exam_lab.py            # Practice lab and question runner
-│   ├── questions_data.py      # Curated benchmark practice problems dataset
-│   ├── train_embeddings.py    # Fine-tuning script for sentence transformer model
-│   └── tutor.py               # Generative Socratic tutor and isomorphic variant engine
+RBAC-Simulator-and-Trigger-Visualizer/
+├── app.py                                    # Streamlit frontend with 5 integrated modules
+├── config.py                                 # Roles, schemas, SQL definitions, and configurations
+├── db_connection.py                          # Thread-safe pooled PostgreSQL connection manager
+├── visualizer.py                             # Visual pipeline rendering, live trace, and diff viewers
+├── requirements.txt                          # Production dependencies
+├── README.md                                 # System architecture, RBAC matrix, and deployment guide
+├── .gitignore                                # Exclusion rules for secrets, caches, and local files
+├── competitive_exam_questions_and_answers.md # 178 Official questions & verified answer keys
+├── competitive_exam_practice_variants.md     # 534 Pre-defined variants (FinTech, Healthcare, E-Commerce)
+├── gate_pyq_evidence_matrix.md               # Verifiable audit matrix of GATE master papers
+├── ai_engine/                                # AI practice and isomorphic problem generation
+│   ├── evaluator.py                          # Hybrid AI evaluation engine (Embeddings + Invariants)
+│   ├── exam_lab.py                           # Practice lab and question runner
+│   ├── mcq_data.py                           # 178 official questions & 534 verified practice variants
+│   ├── questions_data.py                     # Curated benchmark practice problems dataset
+│   ├── train_embeddings.py                   # Fine-tuning script for sentence transformer model
+│   └── tutor.py                              # Socratic tutor and variant scoring engine
 ├── models/
-│   └── dbms-trigger-evaluator/ # Fine-tuned PyTorch / HuggingFace model weights
+│   └── dbms-trigger-evaluator/                # Fine-tuned PyTorch / HuggingFace model weights
 ├── tests/
-│   ├── conftest.py            # Pytest database fixtures and transactional cleanup
-│   ├── test_ai_evaluator.py   # Unit tests for AI evaluation and invariant checks
-│   └── test_triggers.py       # Validation suite for Neon PostgreSQL triggers
+│   ├── conftest.py                           # Pytest database fixtures and transactional cleanup
+│   ├── test_ai_evaluator.py                  # Unit tests for AI evaluation and invariant checks
+│   ├── test_mcq_dataset.py                   # Unit tests for the 178 questions & 534 variants
+│   └── test_triggers.py                      # Validation suite for Neon PostgreSQL triggers
 └── .streamlit/
-    ├── config.toml            # Streamlit theme and server configuration
-    └── secrets.toml.example   # Safe credentials template for deployment
+    ├── config.toml                           # Streamlit theme and server configuration
+    └── secrets.toml.example                  # Safe credentials template for deployment
 ```
 
 ---
 
-## 8. Local Setup & Execution Guide
+## 8. Local Setup & Execution Guide (Developer Notice)
 
 ### Prerequisites
 - Python 3.10+
@@ -166,8 +201,8 @@ DBMS-RBAC-Trigger-Simulator/
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator.git
-cd DBMS-RBAC-Trigger-Simulator
+git clone https://github.com/Sakthi-Sundar-M/RBAC-Simulator-and-Trigger-Visualizer-professor-copy-.git
+cd RBAC-Simulator-and-Trigger-Visualizer-professor-copy-
 
 # Set up virtual environment
 python -m venv .venv
@@ -178,7 +213,7 @@ pip install -r requirements.txt
 ```
 
 ### Credentials Configuration
-Create `.streamlit/secrets.toml` by copying `.streamlit/secrets.toml.example`:
+To run locally, you must provide valid Neon PostgreSQL credentials in `.streamlit/secrets.toml`:
 ```toml
 DB_HOST = "your-database-host.neon.tech"
 DB_NAME = "neondb"
@@ -186,7 +221,7 @@ DB_USER = "your_username"
 DB_PASS = "your_secure_password"
 DB_PORT = "5432"
 
-# Optional: Gemini API key for dynamic AI variant generation
+# Optional: Gemini API key for dynamic AI assistant features
 GEMINI_API_KEY = "your_gemini_api_key_here"
 ```
 
@@ -207,7 +242,7 @@ streamlit run app.py
 1. Push your repository to GitHub.
 2. Sign in to [Streamlit Community Cloud](https://share.streamlit.io/).
 3. Select **"New app"**, configure your repository and branch (`main`), and set the main file path to `app.py`.
-4. In **Advanced Settings -> Secrets**, paste the contents of your `secrets.toml`:
+4. In **Advanced Settings -> Secrets**, paste your Neon PostgreSQL connection credentials:
    ```toml
    DB_HOST = "your-database-host.neon.tech"
    DB_NAME = "neondb"

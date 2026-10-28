@@ -55,42 +55,69 @@ def fallback_token_similarity(text_a: str, text_b: str) -> float:
     return float(len(intersection) / len(union))
 
 
+def extract_substantive_student_answer(student_text: str, starter_code: str = "") -> Tuple[str, bool]:
+    """
+    Extracts the substantive answer content from a student submission by:
+    1. Ignoring prompt lines, comment headers, and boilerplate from starter code.
+    2. Extracting text written after colons on filled comment prompts.
+    3. Extracting newly added code lines or statements.
+    Returns (cleaned_answer_content, is_unanswered).
+    """
+    if not student_text or not student_text.strip():
+        return "", True
+
+    starter_lines = set(re.sub(r"\s+", " ", l.strip().lower()) for l in (starter_code or "").splitlines() if l.strip())
+    substantive_parts = []
+    
+    for line in student_text.splitlines():
+        raw_line = line.strip()
+        if not raw_line:
+            continue
+            
+        norm_line = re.sub(r"\s+", " ", raw_line.lower())
+        
+        # Exact match to a starter line
+        if norm_line in starter_lines:
+            continue
+            
+        # Comment line handling
+        if re.match(r"^(?:--|#|//|\*+)", raw_line):
+            colon_idx = raw_line.find(":")
+            if colon_idx != -1:
+                after_colon = raw_line[colon_idx + 1:].strip()
+                if not after_colon or after_colon.lower() in {"", "...", "?", "n/a", "none"}:
+                    continue
+                # Retain the uncommented line (including subject label before colon)
+                # so conceptual rubric invariants (e.g. "Event:", "Condition:") are preserved
+                uncom = re.sub(r"^(?:--|#|//|\*+)\s*", "", raw_line).strip()
+                substantive_parts.append(uncom)
+            else:
+                uncom = re.sub(r"^(?:--|#|//|\*+)\s*", "", norm_line).strip()
+                if any(uncom == re.sub(r"^(?:--|#|//|\*+)\s*", "", sl).strip() for sl in starter_lines):
+                    continue
+                if any(w in uncom for w in ["breakdown", "model", "primitives", "explain", "describe", "write", "analyze", "synthesize"]):
+                    continue
+                substantive_parts.append(raw_line)
+        else:
+            if norm_line in starter_lines:
+                continue
+            if norm_line in {"begin", "end;", "return new;", "return old;", "$$ language plpgsql;"}:
+                continue
+            substantive_parts.append(raw_line)
+            
+    combined = " ".join(substantive_parts).strip()
+    words = re.findall(r"\b[a-zA-Z0-9_]{2,}\b", combined)
+    is_empty = len(words) < 2
+    return combined, is_empty
+
+
 def is_unanswered_template(student_text: str, starter_code: str) -> bool:
     """
     Detects if the student submission is empty or contains only the unedited starter template
     without any actual student answer content.
     """
-    if not student_text or not student_text.strip():
-        return True
-
-    s_clean = re.sub(r"\s+", " ", student_text.strip().lower())
-    st_clean = re.sub(r"\s+", " ", (starter_code or "").strip().lower())
-    if s_clean == st_clean:
-        return True
-
-    starter_lines = set(re.sub(r"\s+", " ", l.strip().lower()) for l in (starter_code or "").splitlines() if l.strip())
-    student_lines = [l.strip() for l in student_text.splitlines() if l.strip()]
-
-    novel_content_lines = []
-    for l in student_lines:
-        norm_l = re.sub(r"\s+", " ", l.lower())
-        if norm_l in starter_lines:
-            continue
-        # Ignore empty comment lines / prompt prefixes (e.g. "-- 1. Event:" or "-- Event:")
-        if re.match(r"^--\s*(\d+\.?\s*[a-zA-Z_]+:?)?\s*$", l):
-            continue
-        # Ignore stripped instruction lines
-        uncom = re.sub(r"^--\s*", "", norm_l).strip()
-        if any(uncom == re.sub(r"^--\s*", "", sl).strip() for sl in starter_lines):
-            continue
-        novel_content_lines.append(l)
-
-    if not novel_content_lines:
-        return True
-
-    # Count meaningful answer tokens added by the student
-    added_tokens = re.findall(r"\b[a-zA-Z0-9_]{2,}\b", " ".join(novel_content_lines))
-    return len(added_tokens) < 3
+    _, is_un = extract_substantive_student_answer(student_text, starter_code)
+    return is_un
 
 
 def clean_answer_text(student_text: str, starter_code: str = "") -> str:
@@ -98,22 +125,10 @@ def clean_answer_text(student_text: str, starter_code: str = "") -> str:
     Normalizes student answer by removing SQL comment markers and instructional boilerplate,
     isolating the actual conceptual or code answer regardless of formatting.
     """
-    starter_lines = set(re.sub(r"\s+", " ", l.strip().lower()) for l in (starter_code or "").splitlines() if l.strip())
-    cleaned = []
-    for line in student_text.splitlines():
-        l_str = line.strip()
-        if not l_str:
-            continue
-        # Strip leading comment prefixes (-- , # , // , /* )
-        uncom = re.sub(r"^(?:--|#|//|\*+)\s*", "", l_str).strip()
-        norm_raw = re.sub(r"\s+", " ", l_str.lower())
-        norm_uncom = re.sub(r"\s+", " ", uncom.lower())
-
-        # Omit lines that are purely prompt instructions without answers
-        if (norm_raw in starter_lines or norm_uncom in starter_lines) and re.match(r"^(which|explain|describe|write|implement|please)\b", norm_uncom, re.I):
-            continue
-        cleaned.append(uncom if uncom else l_str)
-    return "\n".join(cleaned) if cleaned else student_text.strip()
+    ans, is_un = extract_substantive_student_answer(student_text, starter_code)
+    if is_un or not ans:
+        return ""
+    return ans
 
 
 def evaluate_concept_scores(student_text: str, key_concepts: List[str], model=None) -> Tuple[List[str], List[str], List[float]]:

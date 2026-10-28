@@ -25,9 +25,12 @@ ENV/
 Thumbs.db
 desktop.ini
 
-# Redundant Backups & Scratch Files
+# Redundant Backups, Scratch & Large Archives
 Older_versions/
 scratch/
+scripts/
+PYQs/
+*.zip
 scratch_*.txt
 *.tmp
 *.log

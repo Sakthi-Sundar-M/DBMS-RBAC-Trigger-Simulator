@@ -11,13 +11,19 @@ import json
 import torch
 from sentence_transformers import SentenceTransformer, InputExample, losses
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def load_training_data(dataset_paths=None):
     """
     Constructs anchor, positive, and negative contrastive pairs
-    from curated exam questions and PYQs.
+    from curated exam questions, comprehensive PYQs, and official MCQ entrance bank.
     """
     if dataset_paths is None:
-        dataset_paths = ["data/exam_questions.json", "data/comprehensive_pyqs.json"]
+        dataset_paths = [
+            os.path.join(BASE_DIR, "data", "exam_questions.json"),
+            os.path.join(BASE_DIR, "data", "comprehensive_pyqs.json"),
+            os.path.join(BASE_DIR, "data", "mcq_exam_questions.json")
+        ]
 
     questions_map = {}
     for path in dataset_paths:
@@ -49,57 +55,62 @@ def load_training_data(dataset_paths=None):
 
     for i, q in enumerate(questions):
         sol = q.get("solution_key", "")
-        exp = q.get("ground_truth_explanation", "")
+        exp = q.get("ground_truth_explanation", "") or q.get("explanation", "")
         prompt = q.get("prompt", "")
 
-        if not sol:
-            continue
+        # 1. For descriptive questions with solution_key
+        if sol:
+            if exp:
+                train_examples.append(InputExample(
+                    texts=[sol, f"Relational database solution for {q.get('title', '')}: {exp}"],
+                    label=0.95
+                ))
+            if prompt:
+                train_examples.append(InputExample(
+                    texts=[prompt, sol],
+                    label=0.85
+                ))
 
-        # 1. Positive Pairs (High Semantic Similarity: 0.85 - 0.95)
-        if exp:
-            train_examples.append(InputExample(
-                texts=[sol, f"Relational database solution for {q.get('title', '')}: {exp}"],
-                label=0.95
-            ))
-        if prompt:
-            train_examples.append(InputExample(
-                texts=[prompt, sol],
-                label=0.85
-            ))
+            # Domain Hard Negative Pairs
+            if "BEFORE" in sol:
+                train_examples.append(InputExample(texts=[sol, sol.replace("BEFORE", "AFTER")], label=0.15))
+            if "NEW" in sol:
+                train_examples.append(InputExample(texts=[sol, sol.replace("NEW", "OLD")], label=0.10))
+            if "GRANT" in sol:
+                train_examples.append(InputExample(texts=[sol, sol.replace("GRANT", "REVOKE")], label=0.10))
+            if "FOR EACH ROW" in sol:
+                train_examples.append(InputExample(texts=[sol, sol.replace("FOR EACH ROW", "FOR EACH STATEMENT")], label=0.15))
+            if "RETURN NEW" in sol:
+                train_examples.append(InputExample(texts=[sol, sol.replace("RETURN NEW", "RETURN NULL")], label=0.10))
 
-        # 2. Domain Hard Negative Pairs (Subtle Invariants: 0.05 - 0.20)
-        if "BEFORE" in sol:
+        # 2. For MCQ questions with prompt, explanation, and variants
+        elif prompt and exp:
             train_examples.append(InputExample(
-                texts=[sol, sol.replace("BEFORE", "AFTER")],
-                label=0.15
+                texts=[prompt, f"DBMS Invariant for {q.get('title', '')}: {exp}"],
+                label=0.90
             ))
-        if "NEW" in sol:
-            train_examples.append(InputExample(
-                texts=[sol, sol.replace("NEW", "OLD")],
-                label=0.10
-            ))
-        if "GRANT" in sol:
-            train_examples.append(InputExample(
-                texts=[sol, sol.replace("GRANT", "REVOKE")],
-                label=0.10
-            ))
-        if "FOR EACH ROW" in sol:
-            train_examples.append(InputExample(
-                texts=[sol, sol.replace("FOR EACH ROW", "FOR EACH STATEMENT")],
-                label=0.15
-            ))
-        if "RETURN NEW" in sol:
-            train_examples.append(InputExample(
-                texts=[sol, sol.replace("RETURN NEW", "RETURN NULL")],
-                label=0.10
-            ))
+            # Contrastive pairs with pre-computed domain variants
+            for v in q.get("variants", []):
+                v_prompt = v.get("prompt", "")
+                v_exp = v.get("explanation", "")
+                if v_prompt:
+                    train_examples.append(InputExample(
+                        texts=[prompt, v_prompt],
+                        label=0.85
+                    ))
+                if v_exp:
+                    train_examples.append(InputExample(
+                        texts=[exp, v_exp],
+                        label=0.90
+                    ))
 
-        # 3. Cross-question Negative Pairs (Different topics)
+        # 3. Cross-question Negative Pairs
         other_q = questions[(i + len(questions) // 2) % len(questions)]
-        other_sol = other_q.get("solution_key", "")
-        if other_sol and other_sol != sol:
+        other_text = other_q.get("solution_key", "") or other_q.get("explanation", "")
+        curr_text = sol or exp
+        if other_text and curr_text and other_text != curr_text:
             train_examples.append(InputExample(
-                texts=[sol, other_sol],
+                texts=[curr_text[:120], other_text[:120]],
                 label=0.05
             ))
 
@@ -107,10 +118,13 @@ def load_training_data(dataset_paths=None):
 
 
 def train_evaluator_model(
-    output_dir: str = "models/dbms-trigger-evaluator",
+    output_dir: str = None,
     num_epochs: int = 2,
-    batch_size: int = 4
+    batch_size: int = 8
 ):
+    if output_dir is None:
+        output_dir = os.path.join(BASE_DIR, "models", "dbms-trigger-evaluator")
+
     print("=" * 70)
     print("LIGHTWEIGHT AI MODEL TRAINING: DBMS TRIGGERS & RBAC EVALUATOR")
     print("=" * 70)
