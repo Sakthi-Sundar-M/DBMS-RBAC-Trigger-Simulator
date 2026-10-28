@@ -39,6 +39,7 @@ scratch_*.txt
 *.pptx
 *.pdf
 *.docx
+!competitive_exam_*.docx
 generate_report_docx.py
 
 # Review Notes & Academic Guides

@@ -1,5 +1,4 @@
 # Database Users & Roles Simulator, Trigger Visualizer, and AI Practice Lab
-### Academic Evaluation Repository (Professor Copy)
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://dbms-rbac-trigger-simulator-michael.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -13,7 +12,8 @@
 **Author**: M. Sakthi Sundar (Reg. No: 25BCE1244)  
 **Project Guide**: Dr. Swaminathan A (Faculty ID: 54632)  
 **Live Application Deployment**: [https://dbms-rbac-trigger-simulator-michael.streamlit.app/](https://dbms-rbac-trigger-simulator-michael.streamlit.app/)  
-**Original Public Repository**: [https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator](https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator)  
+**Primary Repository**: [https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator](https://github.com/Sakthi-Sundar-M/DBMS-RBAC-Trigger-Simulator)  
+**Professor Evaluation Copy**: [https://github.com/Sakthi-Sundar-M/RBAC-Simulator-and-Trigger-Visualizer-professor-copy-](https://github.com/Sakthi-Sundar-M/RBAC-Simulator-and-Trigger-Visualizer-professor-copy-)  
 **GitHub Profile**: [Sakthi-Sundar-M](https://github.com/Sakthi-Sundar-M)  
 **LinkedIn**: [Sakthi Sundar M](https://www.linkedin.com/in/sakthi-sundar-m)  
 
@@ -34,11 +34,13 @@
 
 ### Project Reference Files Included in this Repository
 
-| Document | Purpose & Description |
-| :--- | :--- |
-| **[`competitive_exam_questions_and_answers.md`](./competitive_exam_questions_and_answers.md)** | Complete compilation of all **178 authentic competitive exam questions** (GATE, ISRO, NIELIT, UGC-NET) with verified official answer keys and difficulty categorizations (no spoilers/explanations). |
-| **[`competitive_exam_practice_variants.md`](./competitive_exam_practice_variants.md)** | Full library of all **534 isomorphic practice variants** across 3 enterprise domains (FinTech / Core Banking, Healthcare EMR, and E-Commerce Retail) with complete question statements, answer choices, and correct solutions. |
-| **[`gate_pyq_evidence_matrix.md`](./gate_pyq_evidence_matrix.md)** | Direct IIT/IISc master question paper provenance matrix linking each GATE question to its official PDF source, page number, and question number. |
+| Document | Format | Purpose & Description |
+| :--- | :--- | :--- |
+| **[`competitive_exam_questions_and_answers.md`](./competitive_exam_questions_and_answers.md)** | Markdown (`.md`) | Complete compilation of all **178 authentic competitive exam questions** (GATE, ISRO, NIELIT, UGC-NET) with verified official answer keys and difficulty categorizations (no spoilers/explanations). |
+| **[`competitive_exam_questions_and_answers.docx`](./competitive_exam_questions_and_answers.docx)** | Word (`.docx`) | Formatted academic Word submission containing only questions, options, correct answers, and exam name/year. |
+| **[`competitive_exam_practice_variants.md`](./competitive_exam_practice_variants.md)** | Markdown (`.md`) | Full library of all **534 isomorphic practice variants** across 3 enterprise domains (FinTech / Core Banking, Healthcare EMR, and E-Commerce Retail) with complete question statements, answer choices, and correct solutions. |
+| **[`competitive_exam_practice_variants.docx`](./competitive_exam_practice_variants.docx)** | Word (`.docx`) | Formatted academic Word submission containing all 534 variants with options, correct answers, and source exam name/year. |
+| **[`gate_pyq_evidence_matrix.md`](./gate_pyq_evidence_matrix.md)** | Markdown (`.md`) | Direct IIT/IISc master question paper provenance matrix linking each GATE question to its official PDF source, page number, and question number. |
 
 ---
 
@@ -169,7 +171,9 @@ RBAC-Simulator-and-Trigger-Visualizer/
 ├── README.md                                 # System architecture, RBAC matrix, and deployment guide
 ├── .gitignore                                # Exclusion rules for secrets, caches, and local files
 ├── competitive_exam_questions_and_answers.md # 178 Official questions & verified answer keys
+├── competitive_exam_questions_and_answers.docx # Word (.docx) submission format (Questions & Answers)
 ├── competitive_exam_practice_variants.md     # 534 Pre-defined variants (FinTech, Healthcare, E-Commerce)
+├── competitive_exam_practice_variants.docx   # Word (.docx) submission format (534 Variants)
 ├── gate_pyq_evidence_matrix.md               # Verifiable audit matrix of GATE master papers
 ├── ai_engine/                                # AI practice and isomorphic problem generation
 │   ├── evaluator.py                          # Hybrid AI evaluation engine (Embeddings + Invariants)
